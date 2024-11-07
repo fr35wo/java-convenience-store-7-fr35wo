@@ -57,4 +57,9 @@ public class Product {
     public String getPromotionDescription() {
         return promotion != null ? promotion.getName() : "";
     }
+
+    public void addStock(int additionalStock) {
+        this.stock += additionalStock;
+    }
+
 }

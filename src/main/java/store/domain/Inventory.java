@@ -44,7 +44,7 @@ public class Inventory {
                 }
             }
         } catch (IOException e) {
-            System.out.println("[ERROR] 프로모션 파일을 불러오는 중 오류가 발생했습니다.");
+            System.out.println("프로모션 파일을 불러오는 중 오류가 발생했습니다.");
         }
     }
 
@@ -69,7 +69,7 @@ public class Inventory {
                 }
             }
         } catch (IOException e) {
-            System.out.println("[ERROR] 상품 파일을 불러오는 중 오류가 발생했습니다.");
+            System.out.println("상품 파일을 불러오는 중 오류가 발생했습니다.");
         }
     }
 

@@ -45,8 +45,8 @@ public class CartItem {
                 System.out.printf("현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n",
                         product.getName(), remainingQuantity);
 
-                String response = Console.readLine().trim();
-                if ("N".equalsIgnoreCase(response)) {
+                String response = getValidYNResponse();
+                if ("N".equals(response)) {
                     quantity = promoAvailableQuantity;
                 }
                 return true;
@@ -103,12 +103,26 @@ public class CartItem {
                 int additionalQuantityNeeded = totalRequired - remainder;
                 System.out.printf("현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n",
                         product.getName(), additionalQuantityNeeded);
-                String response = Console.readLine().trim();
-                if ("Y".equalsIgnoreCase(response)) {
+
+                String response = getValidYNResponse();
+                if ("Y".equals(response)) {
                     quantity += additionalQuantityNeeded;
                 }
             }
         }
+    }
+
+    private String getValidYNResponse() {
+        String response;
+        while (true) {
+            response = Console.readLine().trim();
+            if (response.equals("Y") || response.equals("N")) {
+                break;
+            } else {
+                System.out.println("잘못된 입력입니다. 다시 입력해 주세요.");
+            }
+        }
+        return response;
     }
 
     public String getProductName() {

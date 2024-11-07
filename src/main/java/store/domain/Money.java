@@ -10,7 +10,7 @@ public class Money {
 
     private void validateAmount(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("[ERROR] 금액은 음수일 수 없습니다.");
+            throw new IllegalArgumentException("금액은 음수일 수 없습니다.");
         }
     }
 
@@ -27,7 +27,7 @@ public class Money {
     public Money subtract(Money other) {
         int result = this.amount - other.amount;
         if (result < 0) {
-            throw new IllegalArgumentException("[ERROR] 금액이 음수가 될 수 없습니다.");
+            throw new IllegalArgumentException("금액이 음수가 될 수 없습니다.");
         }
         return new Money(result);
     }
@@ -35,7 +35,7 @@ public class Money {
     // 금액의 곱셈
     public Money multiply(int multiplier) {
         if (multiplier < 0) {
-            throw new IllegalArgumentException("[ERROR] 곱셈의 값은 음수가 될 수 없습니다.");
+            throw new IllegalArgumentException("곱셈의 값은 음수가 될 수 없습니다.");
         }
         return new Money(this.amount * multiplier);
     }

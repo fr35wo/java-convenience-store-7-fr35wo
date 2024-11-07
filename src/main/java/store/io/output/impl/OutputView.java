@@ -41,4 +41,8 @@ public class OutputView {
     public void printError(String message) {
         System.out.println("[ERROR] " + message);
     }
+
+    public void printThankYouMessage() {
+        System.out.println("감사합니다! W편의점을 이용해 주셔서 감사합니다.");
+    }
 }

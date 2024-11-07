@@ -24,19 +24,25 @@ public class ConvenienceStoreController {
         boolean continueShopping;
 
         do {
-            outputView.printProductList(inventory.getProducts());
-            List<CartItem> items = inputView.readPurchaseItems(inventory);
-            boolean isMembership = inputView.askForMembershipDiscount();
+            try {
+                outputView.printProductList(inventory.getProducts());
+                List<CartItem> items = inputView.readPurchaseItems(inventory);
 
-            Membership membership = new Membership(isMembership);
+                boolean isMembership = inputView.askForMembershipDiscount();
+                Membership membership = new Membership(isMembership);
 
-            Cart cart = new Cart(items);
-            Receipt receipt = new Receipt(cart, membership, inventory);
-            outputView.printReceipt(receipt);
+                Cart cart = new Cart(items);
+                Receipt receipt = new Receipt(cart, membership, inventory);
+                outputView.printReceipt(receipt);
 
-            continueShopping = inputView.askForAdditionalPurchase();
+                continueShopping = inputView.askForAdditionalPurchase();
+
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                outputView.printError(e.getMessage());
+                continueShopping = true; // 재시도하게 설정
+            }
         } while (continueShopping);
 
-        System.out.println("감사합니다! W편의점을 이용해 주셔서 감사합니다.");
+        outputView.printThankYouMessage();
     }
 }

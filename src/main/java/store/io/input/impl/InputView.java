@@ -52,7 +52,7 @@ public class InputView {
             if ("N".equalsIgnoreCase(input)) {
                 return false;
             }
-            System.out.println("[ERROR] 잘못된 입력입니다. Y 또는 N을 입력해 주세요.");
+            System.out.println("잘못된 입력입니다. Y 또는 N을 입력해 주세요.");
         }
     }
 }

@@ -16,16 +16,10 @@ public class CartItem {
         }
     }
 
-    /**
-     * 총 금액을 전체 수량 기준으로 계산
-     */
     public Money calculateTotalPrice() {
         return product.getPrice().multiply(quantity);
     }
 
-    /**
-     * 프로모션 적용 후 지불해야 할 금액을 반환
-     */
     public Money getTotalAmountWithoutPromotion() {
         int effectivePaidQuantity = getEffectivePaidQuantity();
         return product.getPrice().multiply(effectivePaidQuantity);
@@ -37,9 +31,6 @@ public class CartItem {
         return promotion != null && promotion.isValid(currentDate);
     }
 
-    /**
-     * 프로모션 재고를 우선적으로 사용하고, 부족할 경우 추가 결제 여부를 확인
-     */
     private boolean checkPromotionStock() {
         Promotion promotion = product.getPromotion();
         if (promotion != null && promotion.isValid(DateTimes.now().toLocalDate())) {
@@ -64,9 +55,6 @@ public class CartItem {
         return false;
     }
 
-    /**
-     * 프로모션 조건에 따라 실제 지불해야 할 수량을 계산
-     */
     public int getEffectivePaidQuantity() {
         Promotion promotion = product.getPromotion();
         if (promotion != null && promotion.isValid(LocalDate.now())) {
@@ -82,12 +70,9 @@ public class CartItem {
                 return quotient * buyQuantity + remainder;
             }
         }
-        return quantity;  // 프로모션이 없으면 전체 수량을 지불
+        return quantity;
     }
 
-    /**
-     * 프로모션 조건에 따라 무료로 제공할 수량 계산
-     */
     public int getFreeQuantity() {
         Promotion promotion = product.getPromotion();
         if (promotion != null && promotion.isValid(LocalDate.now())) {
@@ -106,9 +91,6 @@ public class CartItem {
         return 0;
     }
 
-    /**
-     * 혜택 안내: 프로모션 적용이 가능한 경우 추가 혜택 안내 메시지 출력
-     */
     private void promptForAdditionalQuantity() {
         Promotion promotion = product.getPromotion();
         if (promotion != null && promotion.isValid(LocalDate.now())) {
@@ -139,5 +121,10 @@ public class CartItem {
 
     public Product getProduct() {
         return product;
+    }
+
+    // 프로모션이 적용되는지 여부를 확인하는 메서드 추가
+    public boolean hasPromotion() {
+        return product.getPromotion() != null && product.getPromotion().isValid(DateTimes.now().toLocalDate());
     }
 }

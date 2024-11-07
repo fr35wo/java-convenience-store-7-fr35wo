@@ -14,15 +14,15 @@ public class Receipt {
     public Receipt(Cart cart, Membership membership, Inventory inventory) {
         this.purchasedItems = cart.getItems();
         this.freeItems = calculateFreeItems(cart);
-        this.totalPrice = calculateTotalPrice(cart); // 전체 수량 기준 총 구매액
-        this.promotionDiscount = calculatePromotionDiscount(cart); // 프로모션 할인 계산
-        this.membershipDiscount = membership.isMember() ? membership.getDiscount(totalPrice).getAmount() : 0;
+        this.totalPrice = calculateTotalPrice(cart);
+        this.promotionDiscount = calculatePromotionDiscount(cart);
+        this.membershipDiscount = calculateMembershipDiscount(cart, membership);
         updateInventory(cart, inventory);
     }
 
     private Money calculateTotalPrice(Cart cart) {
         return cart.getItems().stream()
-                .map(CartItem::calculateTotalPrice) // 전체 수량 기준 총 구매액
+                .map(CartItem::calculateTotalPrice)
                 .reduce(new Money(0), Money::add);
     }
 
@@ -42,8 +42,25 @@ public class Receipt {
         for (CartItem item : cart.getItems()) {
             Money effectivePrice = item.getTotalAmountWithoutPromotion();
             Money fullPrice = item.calculateTotalPrice();
-            discount += fullPrice.subtract(effectivePrice).getAmount(); // 전체 수량과 지불 수량의 차액을 할인으로 계산
+            discount += fullPrice.subtract(effectivePrice).getAmount();
         }
+        return discount;
+    }
+
+    // 멤버십 할인을 프로모션이 적용되지 않은 금액에만 적용
+    private int calculateMembershipDiscount(Cart cart, Membership membership) {
+        if (!membership.isMember()) {
+            return 0;
+        }
+
+        // 프로모션 미적용 금액 계산
+        int nonPromoTotal = cart.getItems().stream()
+                .filter(item -> !item.hasPromotion()) // 프로모션이 적용되지 않은 상품만 필터링
+                .mapToInt(item -> item.calculateTotalPrice().getAmount())
+                .sum();
+
+        // 멤버십 할인 30%, 최대 8,000원 적용
+        int discount = (int) Math.min(nonPromoTotal * 0.3, 8000);
         return discount;
     }
 
@@ -59,22 +76,16 @@ public class Receipt {
                 int freeQuantity = promotion.getFreeQuantity();
                 int totalRequired = buyQuantity + freeQuantity;
 
-                // 프로모션 재고에서 가능한 최대 차감량
                 int availablePromoStock = product.getStock();
                 int promoQuantity = Math.min(requiredQuantity, availablePromoStock);
 
-                // 남은 수량을 일반 재고에서 차감
                 int regularQuantity = requiredQuantity - promoQuantity;
-
-                // 인벤토리에서 프로모션 및 일반 재고 각각 차감
                 inventory.reduceStock(product.getName(), promoQuantity, regularQuantity);
             } else {
-                // 프로모션이 없을 경우 전체 수량을 일반 재고에서 차감
                 inventory.reduceStock(product.getName(), 0, requiredQuantity);
             }
         }
     }
-
 
     public List<CartItem> getPurchasedItems() {
         return purchasedItems;

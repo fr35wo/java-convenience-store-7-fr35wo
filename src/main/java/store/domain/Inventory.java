@@ -1,5 +1,6 @@
 package store.domain;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,9 +21,8 @@ public class Inventory {
     }
 
     private void loadPromotions(String filePath) {
-        LocalDate currentDate = LocalDate.of(2025, 1, 1);
-//DateTimes.now().toLocalDate();
-        //LocalDate.of(2025, 1, 1);
+        LocalDate currentDate = DateTimes.now().toLocalDate();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             reader.readLine(); // 헤더 라인 무시

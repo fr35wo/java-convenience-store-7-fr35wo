@@ -25,6 +25,24 @@ public class CartItem {
         return product.getPrice().multiply(effectivePaidQuantity);
     }
 
+    public int getEffectivePaidQuantity() {
+        Promotion promotion = product.getPromotion();
+        if (promotion != null && promotion.isValid(LocalDate.now())) {
+            int buyQuantity = promotion.getBuyQuantity();
+            int freeQuantity = promotion.getFreeQuantity();
+            int totalRequired = buyQuantity + freeQuantity;
+            int quotient = quantity / totalRequired;
+            int remainder = quantity % totalRequired;
+
+            if (remainder > buyQuantity) {
+                return (quotient + 1) * buyQuantity;
+            } else {
+                return quotient * buyQuantity + remainder;
+            }
+        }
+        return quantity;
+    }
+
     private boolean isPromotionValid() {
         LocalDate currentDate = DateTimes.now().toLocalDate();
         Promotion promotion = product.getPromotion();
@@ -53,24 +71,6 @@ public class CartItem {
             }
         }
         return false;
-    }
-
-    public int getEffectivePaidQuantity() {
-        Promotion promotion = product.getPromotion();
-        if (promotion != null && promotion.isValid(LocalDate.now())) {
-            int buyQuantity = promotion.getBuyQuantity();
-            int freeQuantity = promotion.getFreeQuantity();
-            int totalRequired = buyQuantity + freeQuantity;
-            int quotient = quantity / totalRequired;
-            int remainder = quantity % totalRequired;
-
-            if (remainder > buyQuantity) {
-                return (quotient + 1) * buyQuantity;
-            } else {
-                return quotient * buyQuantity + remainder;
-            }
-        }
-        return quantity;
     }
 
     public int getFreeQuantity() {
@@ -113,16 +113,14 @@ public class CartItem {
     }
 
     private String getValidYNResponse() {
-        String response;
         while (true) {
-            response = Console.readLine().trim();
+            String response = Console.readLine().trim();
             if (response.equals("Y") || response.equals("N")) {
-                break;
+                return response;
             } else {
-                System.out.println("잘못된 입력입니다. 다시 입력해 주세요.");
+                throw new IllegalArgumentException("잘못된 입력입니다. 'Y' 또는 'N'만 입력해 주세요.");
             }
         }
-        return response;
     }
 
     public String getProductName() {

@@ -31,14 +31,10 @@ public class CartItem {
             int buyQuantity = promotion.getBuyQuantity();
             int freeQuantity = promotion.getFreeQuantity();
             int totalRequired = buyQuantity + freeQuantity;
-            int quotient = quantity / totalRequired;
-            int remainder = quantity % totalRequired;
+            int quotient = quantity - Math.min(quantity / totalRequired, product.getStock() / totalRequired);
 
-            if (remainder > buyQuantity) {
-                return (quotient + 1) * buyQuantity;
-            } else {
-                return quotient * buyQuantity + remainder;
-            }
+            return quotient;
+
         }
         return quantity;
     }
@@ -79,14 +75,9 @@ public class CartItem {
             int buyQuantity = promotion.getBuyQuantity();
             int freeQuantity = promotion.getFreeQuantity();
             int totalRequired = buyQuantity + freeQuantity;
-            int quotient = quantity / totalRequired;
-            int remainder = quantity % totalRequired;
+            int promoSets = Math.min(quantity / totalRequired, product.getStock() / totalRequired);
 
-            if (remainder > buyQuantity) {
-                return (quotient + 1) * freeQuantity;
-            } else {
-                return quotient * freeQuantity;
-            }
+            return promoSets * freeQuantity;
         }
         return 0;
     }

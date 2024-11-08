@@ -14,10 +14,6 @@ public class Money {
         }
     }
 
-    public int getAmount() {
-        return amount;
-    }
-
     // 금액의 합산
     public Money add(Money other) {
         return new Money(this.amount + other.amount);
@@ -38,6 +34,10 @@ public class Money {
             throw new IllegalArgumentException("곱셈의 값은 음수가 될 수 없습니다.");
         }
         return new Money(this.amount * multiplier);
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     @Override

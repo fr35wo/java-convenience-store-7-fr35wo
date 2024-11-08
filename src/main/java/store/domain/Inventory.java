@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import store.io.output.StoreOutput;
 
 public class Inventory {
     private final List<Product> products = new ArrayList<>();
@@ -93,23 +94,23 @@ public class Inventory {
                 .findFirst();
     }
 
+    // 재고 차감: 일반 재고와 프로모션 재고를 명확하게 나누어 관리
     public void reduceStock(String productName, int promoQuantity, int regularQuantity) {
         Product promoProduct = getProductByNameAndPromotion(productName, true).orElse(null);
         Product regularProduct = getProductByNameAndPromotion(productName, false).orElse(null);
 
-        int remainingPromoQuantity = promoQuantity;
-        if (promoProduct != null && remainingPromoQuantity > 0) {
-            int promoStockUsed = Math.min(remainingPromoQuantity, promoProduct.getStock());
-            promoProduct.reduceStock(promoStockUsed, 0);
-            remainingPromoQuantity -= promoStockUsed;
+        // 프로모션 재고 차감
+        if (promoProduct != null && promoQuantity > 0) {
+            promoProduct.reducePromotionStock(promoQuantity);
         }
 
-        if (remainingPromoQuantity > 0 && regularProduct != null) {
-            regularProduct.reduceStock(0, remainingPromoQuantity);
+        // 일반 재고 차감
+        if (regularProduct != null && regularQuantity > 0) {
+            regularProduct.reduceRegularStock(regularQuantity);
         }
+    }
 
-        if (regularQuantity > 0 && regularProduct != null) {
-            regularProduct.reduceStock(0, regularQuantity);
-        }
+    public void printProductList(StoreOutput storeOutput) {
+        storeOutput.printProductList(products);
     }
 }

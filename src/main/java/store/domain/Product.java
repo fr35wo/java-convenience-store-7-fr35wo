@@ -21,39 +21,24 @@ public class Product {
         return price;
     }
 
-    public int getStock() {
-        return stock;
-    }
-
     public Promotion getPromotion() {
         return promotion;
     }
 
-    public void reduceStock(int promoQuantity, int regularQuantity) {
-        // 프로모션 재고 차감 시
-        if (promoQuantity > 0 && promotion != null) {
-            if (promoQuantity > stock) {
-                throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
-            }
-            stock -= promoQuantity;
+    // 일반 재고 차감
+    public void reduceRegularStock(int quantity) {
+        if (quantity > stock) {
+            throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
         }
-
-        // 일반 재고 차감 시
-        if (regularQuantity > 0 && (promotion == null || promoQuantity == 0)) {
-            if (regularQuantity > stock) {
-                throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
-            }
-            stock -= regularQuantity;
-        }
+        stock -= quantity;
     }
 
-    /**
-     * 프로모션이 만료되면 프로모션 재고를 일반 재고에 통합하고, 프로모션 정보 제거.
-     */
-    public void transferPromoStockToRegular() {
-        if (promotion != null) {
-            promotion = null; // 프로모션 정보 제거
+    // 프로모션 재고 차감 (프로모션 관련 로직은 Promotion 클래스와 연계)
+    public void reducePromotionStock(int promoQuantity) {
+        if (promoQuantity > stock) {
+            throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
         }
+        stock -= promoQuantity;
     }
 
     public String getPromotionDescription() {
@@ -62,5 +47,16 @@ public class Product {
 
     public void addStock(int additionalStock) {
         this.stock += additionalStock;
+    }
+
+    // 상품 정보를 출력하는 메서드
+    public void printProductInfo() {
+        String stockInfo = stock > 0 ? stock + "개" : "재고 없음";
+        String promoInfo = getPromotionDescription();
+        System.out.printf("- %s %d원 %s %s\n", name, price.getAmount(), stockInfo, promoInfo);
+    }
+
+    public int getStock() {
+        return stock;
     }
 }

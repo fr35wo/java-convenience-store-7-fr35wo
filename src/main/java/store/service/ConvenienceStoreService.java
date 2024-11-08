@@ -4,22 +4,32 @@ import java.util.List;
 import store.domain.CartItem;
 import store.domain.Inventory;
 import store.domain.PurchaseItemParser;
+import store.io.output.StoreOutput;
 
 public class ConvenienceStoreService {
     private final PurchaseItemParser parser;
+    private Inventory inventory;
 
     public ConvenienceStoreService() {
         this.parser = new PurchaseItemParser();
+        this.inventory = createInventory(); // Inventory 객체 생성
     }
 
-    /**
-     * 사용자 입력을 받아 CartItem 리스트를 생성.
-     *
-     * @param input     사용자가 입력한 상품명과 수량 문자열
-     * @param inventory 상품 재고 정보
-     * @return CartItem 리스트
-     */
-    public List<CartItem> createCartItems(String input, Inventory inventory) {
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    // Inventory 객체를 생성하는 메서드
+    private Inventory createInventory() {
+        return new Inventory();
+    }
+
+    // Inventory에 있는 상품 목록을 출력하는 메서드
+    public void printInventoryProductList(StoreOutput storeOutput) {
+        inventory.printProductList(storeOutput);
+    }
+
+    public List<CartItem> createCartItems(String input) {
         return parser.parse(input, inventory);
     }
 }

@@ -72,10 +72,6 @@ public class Receipt {
             int requiredQuantity = item.getQuantity();
 
             if (promotion != null && promotion.isValid(LocalDate.now())) {
-                int buyQuantity = promotion.getBuyQuantity();
-                int freeQuantity = promotion.getFreeQuantity();
-                int totalRequired = buyQuantity + freeQuantity;
-
                 int availablePromoStock = product.getStock();
                 int promoQuantity = Math.min(requiredQuantity, availablePromoStock);
 

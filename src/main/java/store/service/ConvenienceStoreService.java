@@ -40,7 +40,7 @@ public class ConvenienceStoreService {
     public List<CartItem> createCartItems(List<ParsedItem> parsedItems) {
         List<CartItem> cartItems = new ArrayList<>();
         for (ParsedItem parsedItem : parsedItems) {
-            cartItems.add(new CartItem(parsedItem.getProduct(), parsedItem.getQuantity()));
+            parsedItem.addToCart(cartItems);
         }
         return cartItems;
     }

@@ -1,5 +1,7 @@
 package store.domain;
 
+import java.util.List;
+
 public class ParsedItem {
     private final Product product;
     private final int quantity;
@@ -8,12 +10,8 @@ public class ParsedItem {
         this.product = product;
         this.quantity = quantity;
     }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public int getQuantity() {
-        return quantity;
+    
+    public void addToCart(List<CartItem> cartItems) {
+        cartItems.add(new CartItem(product, quantity));
     }
 }

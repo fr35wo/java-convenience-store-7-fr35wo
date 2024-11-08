@@ -6,6 +6,7 @@ import store.domain.CartItem;
 import store.domain.Inventory;
 import store.domain.ParsedItem;
 import store.domain.PurchaseItemParser;
+import store.io.input.StoreInput;
 import store.io.output.StoreOutput;
 
 public class ConvenienceStoreService {
@@ -43,5 +44,30 @@ public class ConvenienceStoreService {
             parsedItem.addToCart(cartItems);
         }
         return cartItems;
+    }
+
+    public void applyPromotionToCartItems(List<CartItem> items, StoreInput storeInput) {
+        for (CartItem item : items) {
+            if (item.isPromotionValid() && !item.checkPromotionStock()) {
+                // 추가 수량 프로모션 여부 확인
+                int additionalQuantityNeeded = item.calculateAdditionalQuantityNeeded();
+                if (additionalQuantityNeeded > 0) {
+                    boolean addMore = storeInput.askForAdditionalPromo(item.getProductName(), additionalQuantityNeeded);
+                    if (addMore) {
+                        item.updateQuantityForPromotion(additionalQuantityNeeded);
+                    }
+                }
+            }
+
+            if (item.isPromotionValid() && item.calculateRemainingQuantity() > 0) {
+                // 프로모션 할인이 적용되지 않는 수량에 대해 사용자에게 구매 여부 확인
+                int remainingQuantity = item.calculateRemainingQuantity();
+                boolean continueFullPricePurchase = storeInput.askForFullPricePurchase(item.getProductName(),
+                        remainingQuantity);
+                if (!continueFullPricePurchase) {
+                    item.updateQuantityForFullPrice(item.getQuantity() - remainingQuantity);
+                }
+            }
+        }
     }
 }

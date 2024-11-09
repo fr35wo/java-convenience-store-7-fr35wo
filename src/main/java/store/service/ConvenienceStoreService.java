@@ -18,11 +18,7 @@ public class ConvenienceStoreService {
 
     public ConvenienceStoreService() {
         this.parser = new PurchaseItemParser();
-        this.inventory = createInventory();
-    }
-
-    private Inventory createInventory() {
-        return new Inventory();
+        this.inventory = new Inventory();
     }
 
     public void printInventoryProductList(StoreOutput storeOutput) {
@@ -32,7 +28,7 @@ public class ConvenienceStoreService {
     public List<ParsedItem> parseItems(String input) {
         return parser.parse(input, inventory);
     }
-    
+
     public List<CartItem> createCartItems(List<ParsedItem> parsedItems) {
         List<CartItem> cartItems = new ArrayList<>();
         for (ParsedItem parsedItem : parsedItems) {

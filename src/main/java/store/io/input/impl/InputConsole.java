@@ -37,14 +37,18 @@ public class InputConsole implements StoreInput {
 
     private boolean getYesNoResponse() {
         while (true) {
-            String input = Console.readLine().trim().toUpperCase();
-            if ("Y".equals(input)) {
-                return true;
+            try {
+                String input = Console.readLine().trim().toUpperCase();
+                if ("Y".equals(input)) {
+                    return true;
+                }
+                if ("N".equals(input)) {
+                    return false;
+                }
+                throw new IllegalArgumentException("잘못된 입력입니다. Y 또는 N을 입력해 주세요.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("[ERROR] " + e.getMessage());
             }
-            if ("N".equals(input)) {
-                return false;
-            }
-            System.out.println("잘못된 입력입니다. Y 또는 N을 입력해 주세요.");
         }
     }
 }

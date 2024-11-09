@@ -37,7 +37,7 @@ public class ConvenienceStoreController {
                 Receipt receipt = convenienceStoreService.createReceipt(items, membership);
                 storeOutput.printReceipt(receipt);
 
-                convenienceStoreService.updateInventory(new Cart(items));
+                updateInventory(new Cart(items));
 
                 continueShopping = getValidAdditionalPurchaseResponse();
 
@@ -74,8 +74,22 @@ public class ConvenienceStoreController {
         while (true) {
             try {
                 boolean isMembership = storeInput.askForMembershipDiscount();
-                return isMembership ? Membership.Y : Membership.N;
+                if (isMembership) {
+                    return Membership.Y;
+                }
+                return Membership.N;
             } catch (IllegalArgumentException e) {
+                storeOutput.printError(e.getMessage());
+            }
+        }
+    }
+
+    private void updateInventory(Cart cart) {
+        while (true) {
+            try {
+                convenienceStoreService.updateInventory(cart);
+                break;
+            } catch (IllegalStateException e) {
                 storeOutput.printError(e.getMessage());
             }
         }

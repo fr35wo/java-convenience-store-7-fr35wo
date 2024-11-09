@@ -21,7 +21,6 @@ public class Product {
         return promotion;
     }
 
-    // 일반 재고 차감
     public void reduceRegularStock(int quantity) {
         if (quantity > stock) {
             throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
@@ -29,7 +28,6 @@ public class Product {
         stock -= quantity;
     }
 
-    // 프로모션 재고 차감 (프로모션 관련 로직은 Promotion 클래스와 연계)
     public void reducePromotionStock(int promoQuantity) {
         if (promoQuantity > stock) {
             throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
@@ -45,7 +43,6 @@ public class Product {
         this.stock += additionalStock;
     }
 
-    // 상품 정보를 출력하는 메서드
     public void printProductInfo() {
         String stockInfo = stock > 0 ? stock + "개" : "재고 없음";
         String promoInfo = getPromotionDescription();

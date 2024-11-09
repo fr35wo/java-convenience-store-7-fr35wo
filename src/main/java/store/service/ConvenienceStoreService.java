@@ -29,15 +29,16 @@ public class ConvenienceStoreService {
         return parser.parse(input, inventory);
     }
 
-    public List<CartItem> createCartItems(List<ParsedItem> parsedItems) {
+    public Cart createCart(List<ParsedItem> parsedItems) {
         List<CartItem> cartItems = new ArrayList<>();
         for (ParsedItem parsedItem : parsedItems) {
             parsedItem.addToCart(cartItems);
         }
-        return cartItems;
+        return new Cart(cartItems);
     }
 
-    public void applyPromotionToCartItems(List<CartItem> items, StoreInput storeInput) {
+    public void applyPromotionToCartItems(Cart cart, StoreInput storeInput) {
+        List<CartItem> items = cart.getItems();
         for (CartItem item : items) {
             if (item.isPromotionValid() && !item.checkPromotionStock()) {
                 handleAdditionalPromo(item, storeInput);
@@ -68,13 +69,11 @@ public class ConvenienceStoreService {
         }
     }
 
-    public void updateInventory(List<CartItem> items) {
-        Cart cart = new Cart(items);
+    public void updateInventory(Cart cart) {
         inventory.updateInventory(cart);
     }
 
-    public Receipt createReceipt(List<CartItem> items, Membership membership) {
-        Cart cart = new Cart(items);
+    public Receipt createReceipt(Cart cart, Membership membership) {
         return new Receipt(cart, membership);
     }
 }

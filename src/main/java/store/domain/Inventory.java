@@ -1,5 +1,6 @@
 package store.domain;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class Inventory {
     }
 
     private void loadPromotions(String filePath) {
-        LocalDate currentDate = LocalDate.of(2024, 12, 10);//DateTimes.now().toLocalDate();
+        LocalDate currentDate = DateTimes.now().toLocalDate();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -88,6 +89,38 @@ public class Inventory {
     }
 
     public void updateInventory(Cart cart) {
+        validateStock(cart);
+        reduceStock(cart);
+    }
+
+    public void validateStock(Cart cart) {
+        for (CartItem item : cart.getItems()) {
+            Product product = item.getProduct();
+            Promotion promotion = product.getPromotion();
+            int requiredQuantity = item.getQuantity();
+
+            int availablePromoStock = 0;
+            int availableRegularStock = 0;
+
+            Optional<Product> promoProduct = getProductByNameAndPromotion(product.getName(), true);
+            Optional<Product> regularProduct = getProductByNameAndPromotion(product.getName(), false);
+
+            if (promoProduct.isPresent()) {
+                availablePromoStock = promoProduct.get().getStock();
+            }
+            if (regularProduct.isPresent()) {
+                availableRegularStock = regularProduct.get().getStock();
+            }
+
+            int totalAvailableStock = availablePromoStock + availableRegularStock;
+
+            if (requiredQuantity > totalAvailableStock) {
+                throw new IllegalStateException("재고 수량이 부족하여 구매할 수 없습니다: " + product.getName());
+            }
+        }
+    }
+
+    private void reduceStock(Cart cart) {
         for (CartItem item : cart.getItems()) {
             Product product = item.getProduct();
             Promotion promotion = product.getPromotion();

@@ -1,7 +1,7 @@
 package store.controller;
 
 import java.util.List;
-import store.domain.CartItem;
+import store.domain.Cart;
 import store.domain.Membership;
 import store.domain.ParsedItem;
 import store.domain.Receipt;
@@ -39,16 +39,15 @@ public class ConvenienceStoreController {
         convenienceStoreService.printInventoryProductList(storeOutput);
 
         List<ParsedItem> parsedItems = getValidParsedItems();
-        List<CartItem> items = getValidCartItems(parsedItems);
+        Cart cart = convenienceStoreService.createCart(parsedItems);
 
-        convenienceStoreService.applyPromotionToCartItems(items, storeInput);
+        convenienceStoreService.applyPromotionToCartItems(cart, storeInput);
 
         Membership membership = getValidMembershipResponse();
+        Receipt receipt = convenienceStoreService.createReceipt(cart, membership);
+        storeOutput.printReceipt(receipt);
 
-        if (updateInventorySafely(items)) {
-            Receipt receipt = convenienceStoreService.createReceipt(items, membership);
-            storeOutput.printReceipt(receipt);
-        }
+        updateInventory(cart);
     }
 
     private List<ParsedItem> getValidParsedItems() {
@@ -62,16 +61,7 @@ public class ConvenienceStoreController {
         }
     }
 
-    private List<CartItem> getValidCartItems(List<ParsedItem> parsedItems) {
-        while (true) {
-            try {
-                return convenienceStoreService.createCartItems(parsedItems);
-            } catch (IllegalArgumentException | IllegalStateException e) {
-                storeOutput.printError(e.getMessage());
-            }
-        }
-    }
-
+    //enum생성 컨트롤러가 하는게 맞나 서비스가 낫지않나
     private Membership getValidMembershipResponse() {
         while (true) {
             try {
@@ -86,13 +76,11 @@ public class ConvenienceStoreController {
         }
     }
 
-    private boolean updateInventorySafely(List<CartItem> items) {
+    private void updateInventory(Cart cart) {
         try {
-            convenienceStoreService.updateInventory(items);
-            return true;
+            convenienceStoreService.updateInventory(cart);
         } catch (IllegalStateException e) {
             storeOutput.printError(e.getMessage());
-            return false;
         }
     }
 

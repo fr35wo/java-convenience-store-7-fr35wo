@@ -36,8 +36,11 @@ public class ConvenienceStoreController {
                 boolean isMembership = getValidMembershipResponse();
                 Membership membership = new Membership(isMembership);
                 Cart cart = new Cart(items);
-                Receipt receipt = new Receipt(cart, membership, convenienceStoreService.getInventory());
+                Receipt receipt = new Receipt(cart, membership);
                 storeOutput.printReceipt(receipt);
+
+                // 재고 업데이트는 서비스에서 수행
+                convenienceStoreService.updateInventory(cart);
 
                 continueShopping = getValidAdditionalPurchaseResponse();
 

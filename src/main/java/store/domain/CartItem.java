@@ -1,6 +1,5 @@
 package store.domain;
 
-import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
 
 public class CartItem {
@@ -23,34 +22,29 @@ public class CartItem {
 
     public int getEffectivePaidQuantity() {
         Promotion promotion = product.getPromotion();
-        if (promotion != null && promotion.isValid(LocalDate.now())) {
-            int buyQuantity = promotion.getBuyQuantity();
-            int freeQuantity = promotion.getFreeQuantity();
-            int totalRequired = buyQuantity + freeQuantity;
+        if (isPromotionValid(promotion)) {
+            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
             int quotient = quantity - Math.min(quantity / totalRequired, product.getStock() / totalRequired);
-
             return quotient;
-
         }
         return quantity;
     }
 
     public boolean isPromotionValid() {
-        LocalDate currentDate = DateTimes.now().toLocalDate();
         Promotion promotion = product.getPromotion();
-        return promotion != null && promotion.isValid(currentDate);
+        return isPromotionValid(promotion);
+    }
+
+    private boolean isPromotionValid(Promotion promotion) {
+        return promotion != null && promotion.isValid(LocalDate.now());
     }
 
     public boolean checkPromotionStock() {
         Promotion promotion = product.getPromotion();
-        if (promotion != null && promotion.isValid(DateTimes.now().toLocalDate())) {
-            int buyQuantity = promotion.getBuyQuantity();
-            int freeQuantity = promotion.getFreeQuantity();
-            int totalRequired = buyQuantity + freeQuantity;
-
+        if (isPromotionValid(promotion)) {
+            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
             int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
             int remainingQuantity = quantity - promoAvailableQuantity;
-
             return remainingQuantity > 0;
         }
         return false;
@@ -58,36 +52,30 @@ public class CartItem {
 
     public int getFreeQuantity() {
         Promotion promotion = product.getPromotion();
-        if (promotion != null && promotion.isValid(LocalDate.now())) {
-            int buyQuantity = promotion.getBuyQuantity();
-            int freeQuantity = promotion.getFreeQuantity();
-            int totalRequired = buyQuantity + freeQuantity;
-            int promoSets = Math.min(quantity / totalRequired, product.getStock() / totalRequired);
-
-            return promoSets * freeQuantity;
+        if (promotion != null) {
+            return promotion.calculateFreeItems(quantity, product.getStock());
         }
         return 0;
     }
 
     public int calculateRemainingQuantity() {
         Promotion promotion = product.getPromotion();
-        int buyQuantity = promotion.getBuyQuantity();
-        int freeQuantity = promotion.getFreeQuantity();
-        int totalRequired = buyQuantity + freeQuantity;
-
-        int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
-        return Math.max(0, quantity - promoAvailableQuantity);
+        if (isPromotionValid(promotion)) {
+            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+            int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
+            return Math.max(0, quantity - promoAvailableQuantity);
+        }
+        return quantity;
     }
 
     public int calculateAdditionalQuantityNeeded() {
         Promotion promotion = product.getPromotion();
-        int buyQuantity = promotion.getBuyQuantity();
-        int freeQuantity = promotion.getFreeQuantity();
-        int totalRequired = buyQuantity + freeQuantity;
-        int remainder = quantity % totalRequired;
-
-        if (remainder == buyQuantity) {
-            return totalRequired - remainder;
+        if (isPromotionValid(promotion)) {
+            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+            int remainder = quantity % totalRequired;
+            if (remainder == promotion.getBuyQuantity()) {
+                return totalRequired - remainder;
+            }
         }
         return 0;
     }
@@ -112,8 +100,8 @@ public class CartItem {
         return product;
     }
 
-    // 프로모션이 적용되는지 여부를 확인하는 메서드 추가
     public boolean hasPromotion() {
-        return product.getPromotion() != null && product.getPromotion().isValid(DateTimes.now().toLocalDate());
+        Promotion promotion = product.getPromotion();
+        return isPromotionValid(promotion);
     }
 }

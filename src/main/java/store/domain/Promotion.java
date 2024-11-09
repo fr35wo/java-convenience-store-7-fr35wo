@@ -32,4 +32,13 @@ public class Promotion {
     public String getName() {
         return name;
     }
+
+    public int calculateFreeItems(int purchasedQuantity, int stock) {
+        if (isValid(LocalDate.now())) {
+            int totalRequired = buyQuantity + freeQuantity;
+            int promoSets = Math.min(purchasedQuantity / totalRequired, stock / totalRequired);
+            return promoSets * freeQuantity;
+        }
+        return 0;
+    }
 }

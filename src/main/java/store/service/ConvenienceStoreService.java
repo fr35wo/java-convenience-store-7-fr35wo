@@ -2,6 +2,7 @@ package store.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import store.domain.Cart;
 import store.domain.CartItem;
 import store.domain.Inventory;
 import store.domain.ParsedItem;
@@ -69,5 +70,9 @@ public class ConvenienceStoreService {
                 }
             }
         }
+    }
+
+    public void updateInventory(Cart cart) {
+        inventory.updateInventory(cart);
     }
 }

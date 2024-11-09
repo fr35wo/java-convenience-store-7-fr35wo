@@ -37,7 +37,6 @@ public class Inventory {
 
                 Promotion promotion = new Promotion(name, buyQuantity, freeQuantity, startDate, endDate);
 
-                // 프로모션이 현재 유효하지 않은 경우 null로 처리하여 promotions에 추가
                 if (!promotion.isValid(currentDate)) {
                     promotions.put(name, null); // 만료된 프로모션은 null로 등록
                 } else {
@@ -61,7 +60,6 @@ public class Inventory {
                 String promotionName = fields.length > 3 ? fields[3] : null;
                 Promotion promotion = promotions.get(promotionName);
 
-                // 중복된 상품을 찾고, 프로모션이 같고 상품명이 같다면 재고를 합산
                 Optional<Product> existingProduct = findProductByNameAndPromotion(name, promotion);
                 if (existingProduct.isPresent()) {
                     existingProduct.get().addStock(stock);
@@ -94,17 +92,33 @@ public class Inventory {
                 .findFirst();
     }
 
-    // 재고 차감: 일반 재고와 프로모션 재고를 명확하게 나누어 관리
+    public void updateInventory(Cart cart) {
+        for (CartItem item : cart.getItems()) {
+            Product product = item.getProduct();
+            Promotion promotion = product.getPromotion();
+
+            int requiredQuantity = item.getQuantity();
+
+            if (promotion != null && promotion.isValid(LocalDate.now())) {
+                int availablePromoStock = product.getStock();
+                int promoQuantity = Math.min(requiredQuantity, availablePromoStock);
+
+                int regularQuantity = requiredQuantity - promoQuantity;
+                reduceStock(product.getName(), promoQuantity, regularQuantity);
+            } else {
+                reduceStock(product.getName(), 0, requiredQuantity);
+            }
+        }
+    }
+
     public void reduceStock(String productName, int promoQuantity, int regularQuantity) {
         Product promoProduct = getProductByNameAndPromotion(productName, true).orElse(null);
         Product regularProduct = getProductByNameAndPromotion(productName, false).orElse(null);
 
-        // 프로모션 재고 차감
         if (promoProduct != null && promoQuantity > 0) {
             promoProduct.reducePromotionStock(promoQuantity);
         }
 
-        // 일반 재고 차감
         if (regularProduct != null && regularQuantity > 0) {
             regularProduct.reduceRegularStock(regularQuantity);
         }

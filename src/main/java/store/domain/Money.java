@@ -14,12 +14,10 @@ public class Money {
         }
     }
 
-    // 금액의 합산
     public Money add(Money other) {
         return new Money(this.amount + other.amount);
     }
 
-    // 금액의 차감
     public Money subtract(Money other) {
         int result = this.amount - other.amount;
         if (result < 0) {
@@ -28,7 +26,6 @@ public class Money {
         return new Money(result);
     }
 
-    // 금액의 곱셈
     public Money multiply(int multiplier) {
         if (multiplier < 0) {
             throw new IllegalArgumentException("곱셈의 값은 음수가 될 수 없습니다.");

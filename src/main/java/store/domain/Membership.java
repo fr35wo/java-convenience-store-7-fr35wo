@@ -7,8 +7,11 @@ public class Membership {
         this.isMember = isMember;
     }
 
-    public boolean isMember() {
-        return isMember;
+    public int calculateMembershipDiscount(int nonPromoTotal) {
+        if (!isMember) {
+            return 0;
+        }
+        return (int) Math.min(nonPromoTotal * 0.3, 8000);
     }
 }
 

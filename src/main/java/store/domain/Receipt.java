@@ -1,6 +1,5 @@
 package store.domain;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,76 +10,84 @@ public class Receipt {
     private final int promotionDiscount;
     private final int membershipDiscount;
 
-    public Receipt(Cart cart, Membership membership, Inventory inventory) {
-        this.purchasedItems = cart.getItems();
+    public Receipt(Cart cart, Membership membership) {
+        this.purchasedItems = getCartItems(cart);
         this.freeItems = calculateFreeItems(cart);
         this.totalPrice = calculateTotalPrice(cart);
         this.promotionDiscount = calculatePromotionDiscount(cart);
-        this.membershipDiscount = calculateMembershipDiscount(cart, membership);
-        updateInventory(cart, inventory);
+        this.membershipDiscount = membership.calculateMembershipDiscount(calculateNonPromoTotal(cart));
+    }
+
+    private List<CartItem> getCartItems(Cart cart) {
+        return cart.getItems();
     }
 
     private Money calculateTotalPrice(Cart cart) {
-        return cart.getItems().stream()
-                .map(CartItem::calculateTotalPrice)
-                .reduce(new Money(0), Money::add);
+        List<CartItem> items = getCartItems(cart);
+        return calculateItemsTotalPrice(items);
+    }
+
+    private Money calculateItemsTotalPrice(List<CartItem> items) {
+        Money total = new Money(0);
+        for (CartItem item : items) {
+            total = total.add(item.calculateTotalPrice());
+        }
+        return total;
     }
 
     private List<String> calculateFreeItems(Cart cart) {
+        List<CartItem> items = getCartItems(cart);
+        return getFreeItemsFromCart(items);
+    }
+
+    private List<String> getFreeItemsFromCart(List<CartItem> items) {
         List<String> freeItems = new ArrayList<>();
-        for (CartItem item : cart.getItems()) {
-            int freeQuantity = item.getFreeQuantity();
-            if (freeQuantity > 0) {
-                freeItems.add(item.getProduct().getName() + " " + freeQuantity);
-            }
+        for (CartItem item : items) {
+            addFreeItems(freeItems, item);
         }
         return freeItems;
     }
 
+    private void addFreeItems(List<String> freeItems, CartItem item) {
+        int freeQuantity = item.getFreeQuantity();
+        if (freeQuantity > 0) {
+            String freeItemDescription = item.getProduct().getName() + " " + freeQuantity;
+            freeItems.add(freeItemDescription);
+        }
+    }
+
     private int calculatePromotionDiscount(Cart cart) {
+        List<CartItem> items = getCartItems(cart);
+        return getPromotionDiscountFromItems(items);
+    }
+
+    private int getPromotionDiscountFromItems(List<CartItem> items) {
         int discount = 0;
-        for (CartItem item : cart.getItems()) {
-            Money effectivePrice = item.getTotalAmountWithoutPromotion();
-            Money fullPrice = item.calculateTotalPrice();
-            discount += fullPrice.subtract(effectivePrice).getAmount();
+        for (CartItem item : items) {
+            discount += calculateItemPromotionDiscount(item);
         }
         return discount;
     }
 
-    // 멤버십 할인을 프로모션이 적용되지 않은 금액에만 적용
-    private int calculateMembershipDiscount(Cart cart, Membership membership) {
-        if (!membership.isMember()) {
-            return 0;
-        }
-
-        // 프로모션 미적용 금액 계산
-        int nonPromoTotal = cart.getItems().stream()
-                .filter(item -> !item.hasPromotion()) // 프로모션이 적용되지 않은 상품만 필터링
-                .mapToInt(item -> item.calculateTotalPrice().getAmount())
-                .sum();
-
-        // 멤버십 할인 30%, 최대 8,000원 적용
-        int discount = (int) Math.min(nonPromoTotal * 0.3, 8000);
-        return discount;
+    private int calculateItemPromotionDiscount(CartItem item) {
+        Money totalAmount = item.calculateTotalPrice();
+        Money amountWithoutPromotion = item.getTotalAmountWithoutPromotion();
+        return totalAmount.subtract(amountWithoutPromotion).getAmount();
     }
 
-    private void updateInventory(Cart cart, Inventory inventory) {
-        for (CartItem item : cart.getItems()) {
-            Product product = item.getProduct();
-            Promotion promotion = product.getPromotion();
+    private int calculateNonPromoTotal(Cart cart) {
+        List<CartItem> items = getCartItems(cart);
+        return getNonPromoTotal(items);
+    }
 
-            int requiredQuantity = item.getQuantity();
-
-            if (promotion != null && promotion.isValid(LocalDate.now())) {
-                int availablePromoStock = product.getStock();
-                int promoQuantity = Math.min(requiredQuantity, availablePromoStock);
-
-                int regularQuantity = requiredQuantity - promoQuantity;
-                inventory.reduceStock(product.getName(), promoQuantity, regularQuantity);
-            } else {
-                inventory.reduceStock(product.getName(), 0, requiredQuantity);
+    private int getNonPromoTotal(List<CartItem> items) {
+        int total = 0;
+        for (CartItem item : items) {
+            if (!item.hasPromotion()) {
+                total += item.calculateTotalPrice().getAmount();
             }
         }
+        return total;
     }
 
     public List<CartItem> getPurchasedItems() {

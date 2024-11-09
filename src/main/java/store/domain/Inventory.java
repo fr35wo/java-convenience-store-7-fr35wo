@@ -1,6 +1,5 @@
 package store.domain;
 
-import camp.nextstep.edu.missionutils.DateTimes;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,11 +21,11 @@ public class Inventory {
     }
 
     private void loadPromotions(String filePath) {
-        LocalDate currentDate = DateTimes.now().toLocalDate();
+        LocalDate currentDate = LocalDate.of(2024, 12, 10);//DateTimes.now().toLocalDate();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
-            reader.readLine(); // 헤더 라인 무시
+            reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split(",");
                 String name = fields[0];
@@ -38,7 +37,7 @@ public class Inventory {
                 Promotion promotion = new Promotion(name, buyQuantity, freeQuantity, startDate, endDate);
 
                 if (!promotion.isValid(currentDate)) {
-                    promotions.put(name, null); // 만료된 프로모션은 null로 등록
+                    promotions.put(name, null);
                 } else {
                     promotions.put(name, promotion);
                 }

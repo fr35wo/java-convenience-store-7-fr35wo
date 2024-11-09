@@ -1,7 +1,6 @@
 package store.controller;
 
 import java.util.List;
-import store.domain.Cart;
 import store.domain.CartItem;
 import store.domain.Membership;
 import store.domain.ParsedItem;
@@ -26,26 +25,29 @@ public class ConvenienceStoreController {
         boolean continueShopping;
         try {
             do {
-                convenienceStoreService.printInventoryProductList(storeOutput);
-
-                List<ParsedItem> parsedItems = getValidParsedItems();
-                List<CartItem> items = getValidCartItems(parsedItems);
-
-                convenienceStoreService.applyPromotionToCartItems(items, storeInput);
-
-                Membership membership = getValidMembershipResponse();
-                Receipt receipt = convenienceStoreService.createReceipt(items, membership);
-                storeOutput.printReceipt(receipt);
-
-                updateInventory(new Cart(items));
-
+                executeShoppingCycle();
                 continueShopping = getValidAdditionalPurchaseResponse();
-
             } while (continueShopping);
 
             storeOutput.printThankYouMessage();
         } finally {
             storeOutput.close();
+        }
+    }
+
+    private void executeShoppingCycle() {
+        convenienceStoreService.printInventoryProductList(storeOutput);
+
+        List<ParsedItem> parsedItems = getValidParsedItems();
+        List<CartItem> items = getValidCartItems(parsedItems);
+
+        convenienceStoreService.applyPromotionToCartItems(items, storeInput);
+
+        Membership membership = getValidMembershipResponse();
+
+        if (updateInventorySafely(items)) {
+            Receipt receipt = convenienceStoreService.createReceipt(items, membership);
+            storeOutput.printReceipt(receipt);
         }
     }
 
@@ -84,14 +86,13 @@ public class ConvenienceStoreController {
         }
     }
 
-    private void updateInventory(Cart cart) {
-        while (true) {
-            try {
-                convenienceStoreService.updateInventory(cart);
-                break;
-            } catch (IllegalStateException e) {
-                storeOutput.printError(e.getMessage());
-            }
+    private boolean updateInventorySafely(List<CartItem> items) {
+        try {
+            convenienceStoreService.updateInventory(items);
+            return true;
+        } catch (IllegalStateException e) {
+            storeOutput.printError(e.getMessage());
+            return false;
         }
     }
 

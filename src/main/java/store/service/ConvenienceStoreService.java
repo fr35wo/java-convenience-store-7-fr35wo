@@ -68,7 +68,8 @@ public class ConvenienceStoreService {
         }
     }
 
-    public void updateInventory(Cart cart) {
+    public void updateInventory(List<CartItem> items) {
+        Cart cart = new Cart(items);
         inventory.updateInventory(cart);
     }
 

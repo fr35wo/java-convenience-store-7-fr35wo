@@ -33,14 +33,11 @@ public class ConvenienceStoreController {
 
                 convenienceStoreService.applyPromotionToCartItems(items, storeInput);
 
-                boolean isMembership = getValidMembershipResponse();
-                Membership membership = new Membership(isMembership);
-                Cart cart = new Cart(items);
-                Receipt receipt = new Receipt(cart, membership);
+                Membership membership = getValidMembershipResponse();
+                Receipt receipt = convenienceStoreService.createReceipt(items, membership);
                 storeOutput.printReceipt(receipt);
 
-                // 재고 업데이트는 서비스에서 수행
-                convenienceStoreService.updateInventory(cart);
+                convenienceStoreService.updateInventory(new Cart(items));
 
                 continueShopping = getValidAdditionalPurchaseResponse();
 
@@ -73,10 +70,11 @@ public class ConvenienceStoreController {
         }
     }
 
-    private boolean getValidMembershipResponse() {
+    private Membership getValidMembershipResponse() {
         while (true) {
             try {
-                return storeInput.askForMembershipDiscount();
+                boolean isMembership = storeInput.askForMembershipDiscount();
+                return isMembership ? Membership.Y : Membership.N;
             } catch (IllegalArgumentException e) {
                 storeOutput.printError(e.getMessage());
             }

@@ -12,22 +12,24 @@ public class CartItem {
     }
 
     public Money calculateTotalPrice() {
-        return product.getPrice().multiply(quantity);
+        return product.calculatePrice(quantity);
     }
 
     public Money getTotalAmountWithoutPromotion() {
-        int effectivePaidQuantity = getEffectivePaidQuantity();
-        return product.getPrice().multiply(effectivePaidQuantity);
+        return product.calculatePrice(getEffectivePaidQuantity());
     }
 
     public int getEffectivePaidQuantity() {
         Promotion promotion = product.getPromotion();
-        if (isPromotionValid(promotion)) {
-            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
-            int quotient = quantity - Math.min(quantity / totalRequired, product.getStock() / totalRequired);
-            return quotient;
+        if (!isPromotionValid(promotion)) {
+            return quantity;
         }
-        return quantity;
+        return calculateQuotient(promotion);
+    }
+
+    private int calculateQuotient(Promotion promotion) {
+        int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+        return quantity - Math.min(quantity / totalRequired, product.getStock() / totalRequired);
     }
 
     public boolean isPromotionValid() {
@@ -41,41 +43,53 @@ public class CartItem {
 
     public boolean checkPromotionStock() {
         Promotion promotion = product.getPromotion();
-        if (isPromotionValid(promotion)) {
-            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
-            int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
-            int remainingQuantity = quantity - promoAvailableQuantity;
-            return remainingQuantity > 0;
+        if (!isPromotionValid(promotion)) {
+            return false;
         }
-        return false;
+        return isStockAvailable(promotion);
+    }
+
+    private boolean isStockAvailable(Promotion promotion) {
+        int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+        int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
+        return (quantity - promoAvailableQuantity) > 0;
     }
 
     public int getFreeQuantity() {
         Promotion promotion = product.getPromotion();
-        if (promotion != null) {
-            return promotion.calculateFreeItems(quantity, product.getStock());
+        if (promotion == null) {
+            return 0;
         }
-        return 0;
+        return promotion.calculateFreeItems(quantity, product.getStock());
     }
 
     public int calculateRemainingQuantity() {
         Promotion promotion = product.getPromotion();
-        if (isPromotionValid(promotion)) {
-            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
-            int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
-            return Math.max(0, quantity - promoAvailableQuantity);
+        if (!isPromotionValid(promotion)) {
+            return quantity;
         }
-        return quantity;
+        return calculateRemainingQuantityForValidPromotion(promotion);
+    }
+
+    private int calculateRemainingQuantityForValidPromotion(Promotion promotion) {
+        int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+        int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
+        return Math.max(0, quantity - promoAvailableQuantity);
     }
 
     public int calculateAdditionalQuantityNeeded() {
         Promotion promotion = product.getPromotion();
-        if (isPromotionValid(promotion)) {
-            int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
-            int remainder = quantity % totalRequired;
-            if (remainder == promotion.getBuyQuantity()) {
-                return totalRequired - remainder;
-            }
+        if (!isPromotionValid(promotion)) {
+            return 0;
+        }
+        return calculateAdditionalQuantity(promotion);
+    }
+
+    private int calculateAdditionalQuantity(Promotion promotion) {
+        int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
+        int remainder = quantity % totalRequired;
+        if (remainder == promotion.getBuyQuantity()) {
+            return totalRequired - remainder;
         }
         return 0;
     }
@@ -88,20 +102,20 @@ public class CartItem {
         this.quantity += additionalQuantityNeeded;
     }
 
-    public String getProductName() {
-        return product.getName();
+    public boolean hasPromotion() {
+        Promotion promotion = product.getPromotion();
+        return isPromotionValid(promotion);
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getProductName() {
+        return product.getName();
     }
 
     public Product getProduct() {
         return product;
     }
 
-    public boolean hasPromotion() {
-        Promotion promotion = product.getPromotion();
-        return isPromotionValid(promotion);
+    public int getQuantity() {
+        return quantity;
     }
 }

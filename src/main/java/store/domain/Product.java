@@ -17,10 +17,6 @@ public class Product {
         return name;
     }
 
-    public Money getPrice() {
-        return price;
-    }
-
     public Promotion getPromotion() {
         return promotion;
     }
@@ -58,5 +54,9 @@ public class Product {
 
     public int getStock() {
         return stock;
+    }
+
+    public Money calculatePrice(int quantity) {
+        return price.multiply(quantity);
     }
 }

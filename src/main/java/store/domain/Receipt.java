@@ -15,7 +15,7 @@ public class Receipt {
         this.freeItems = calculateFreeItems(cart);
         this.totalPrice = calculateTotalPrice(cart);
         this.promotionDiscount = calculatePromotionDiscount(cart);
-        this.membershipDiscount = membership.calculateMembershipDiscount(calculateNonPromoTotal(cart));
+        this.membershipDiscount = membership.calculateDiscount(calculateNonPromoTotal(cart));
     }
 
     private List<CartItem> getCartItems(Cart cart) {

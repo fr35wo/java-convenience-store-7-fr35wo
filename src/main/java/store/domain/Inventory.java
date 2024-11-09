@@ -80,10 +80,6 @@ public class Inventory {
                 .findFirst();
     }
 
-    public List<Product> getProducts() {
-        return new ArrayList<>(products);
-    }
-
     public Optional<Product> getProductByNameAndPromotion(String productName, boolean hasPromotion) {
         return products.stream()
                 .filter(product -> product.getName().equalsIgnoreCase(productName) &&
@@ -111,7 +107,7 @@ public class Inventory {
         }
     }
 
-    public void reduceStock(String productName, int promoQuantity, int regularQuantity) {
+    private void reduceStock(String productName, int promoQuantity, int regularQuantity) {
         Product promoProduct = getProductByNameAndPromotion(productName, true).orElse(null);
         Product regularProduct = getProductByNameAndPromotion(productName, false).orElse(null);
 

@@ -54,7 +54,7 @@ public class ConvenienceStoreController {
             try {
                 String input = storeInput.getPurchaseItemsInput();
                 return convenienceStoreService.parseItems(input);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 storeOutput.printError(e.getMessage());
             }
         }

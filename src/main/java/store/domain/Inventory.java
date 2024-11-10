@@ -39,8 +39,8 @@ public class Inventory {
     }
 
     private void loadPromotions() {
-        LocalDate currentDate = LocalDate.of(2024, 12, 10);//DateTimes.now().toLocalDate();
-        try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PROMOTIONS_FILE_PATH))) {
+        LocalDate currentDate = DateTimes.now().toLocalDate();
+        try (BufferedReader reader = new BufferedReader(new FileReader(PROMOTIONS_FILE_PATH))) {
             reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -63,15 +63,15 @@ public class Inventory {
     }
 
     private void addPromotionToMap(Promotion promotion, LocalDate currentDate) {
-        if (promotion.isValid(currentDate)) {
-            promotions.put(promotion.getName(), promotion);
-        } else {
+        if (!promotion.isValid(currentDate)) {
             promotions.put(promotion.getName(), null);
+            return;
         }
+        promotions.put(promotion.getName(), promotion);
     }
 
     private void loadProducts() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PRODUCTS_FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(PRODUCTS_FILE_PATH))) {
             reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -100,11 +100,11 @@ public class Inventory {
 
     private void addProductToInventory(Product product) {
         Optional<Product> existingProduct = findProductByNameAndPromotion(product.getName(), product.getPromotion());
-        if (existingProduct.isPresent()) {
-            existingProduct.get().addStock(product.getStock());
+        if (existingProduct.isEmpty()) {
+            products.add(product);
             return;
         }
-        products.add(product);
+        existingProduct.get().addStock(product.getStock());
     }
 
     private Optional<Product> findProductByNameAndPromotion(String name, Promotion promotion) {
@@ -114,7 +114,10 @@ public class Inventory {
     }
 
     private boolean isMatchingProduct(Product product, String name, Promotion promotion) {
-        return product.getName().equals(name) && isMatchingPromotion(product, promotion);
+        if (!product.getName().equals(name)) {
+            return false;
+        }
+        return isMatchingPromotion(product, promotion);
     }
 
     private boolean isMatchingPromotion(Product product, Promotion promotion) {
@@ -167,15 +170,19 @@ public class Inventory {
     }
 
     private int getAvailablePromoStock(Product product) {
-        return getProductByNameAndPromotion(product.getName(), true)
-                .map(Product::getStock)
-                .orElse(DEFAULT_STOCK);
+        Optional<Product> promoProduct = getProductByNameAndPromotion(product.getName(), true);
+        if (promoProduct.isPresent()) {
+            return promoProduct.get().getStock();
+        }
+        return DEFAULT_STOCK;
     }
 
     private int getAvailableRegularStock(Product product) {
-        return getProductByNameAndPromotion(product.getName(), false)
-                .map(Product::getStock)
-                .orElse(DEFAULT_STOCK);
+        Optional<Product> regularProduct = getProductByNameAndPromotion(product.getName(), false);
+        if (regularProduct.isPresent()) {
+            return regularProduct.get().getStock();
+        }
+        return DEFAULT_STOCK;
     }
 
     private void reduceStock(Cart cart) {
@@ -209,16 +216,20 @@ public class Inventory {
         if (promoQuantity <= DEFAULT_STOCK) {
             return;
         }
-        getProductByNameAndPromotion(productName, true)
-                .ifPresent(product -> product.reducePromotionStock(promoQuantity));
+        Optional<Product> promoProduct = getProductByNameAndPromotion(productName, true);
+        if (promoProduct.isPresent()) {
+            promoProduct.get().reducePromotionStock(promoQuantity);
+        }
     }
 
     private void reduceRegularStock(String productName, int regularQuantity) {
         if (regularQuantity <= DEFAULT_STOCK) {
             return;
         }
-        getProductByNameAndPromotion(productName, false)
-                .ifPresent(product -> product.reduceRegularStock(regularQuantity));
+        Optional<Product> regularProduct = getProductByNameAndPromotion(productName, false);
+        if (regularProduct.isPresent()) {
+            regularProduct.get().reduceRegularStock(regularQuantity);
+        }
     }
 
     public void printProductList(StoreOutput storeOutput) {

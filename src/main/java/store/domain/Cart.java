@@ -18,6 +18,30 @@ public class Cart {
         this.items.set(index, newItem);
     }
 
+    public Money getTotalPrice() {
+        Money totalPrice = new Money(0);
+        for (CartItem item : items) {
+            totalPrice = totalPrice.add(item.calculateTotalPrice());
+        }
+        return totalPrice;
+    }
+
+    public int getTotalPromotionDiscount() {
+        int totalDiscount = 0;
+        for (CartItem item : items) {
+            totalDiscount += item.calculatePromotionDiscount();
+        }
+        return totalDiscount;
+    }
+
+    public int getTotalNonPromoAmount() {
+        int total = 0;
+        for (CartItem item : items) {
+            total += item.calculateTotalIfNoPromotion();
+        }
+        return total;
+    }
+
     public List<CartItem> getItems() {
         return List.copyOf(items);
     }

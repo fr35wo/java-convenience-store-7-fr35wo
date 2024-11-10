@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import store.common.ConsoleMessages;
 import store.common.ErrorMessages;
+import store.domain.Cart;
 import store.domain.CartItem;
 import store.domain.Membership;
 import store.domain.Product;
@@ -66,11 +67,11 @@ public class OutputConsole implements StoreOutput {
     }
 
     @Override
-    public void printReceipt(Receipt receipt, Membership membership) {
+    public void printReceipt(Receipt receipt, Cart cart, Membership membership) {
         printReceiptHeader();
         printPurchasedItems(receipt);
         printFreeItems(receipt);
-        printReceiptSummary(receipt, membership);
+        printReceiptSummary(receipt, cart, membership);
     }
 
     private void printReceiptHeader() {
@@ -95,7 +96,6 @@ public class OutputConsole implements StoreOutput {
             return;
         }
         System.out.printf("%-10s %9d %14s%n", productName, quantity, totalPrice);
-
     }
 
     private void printFreeItems(Receipt receipt) {
@@ -111,15 +111,15 @@ public class OutputConsole implements StoreOutput {
         System.out.printf("%-10s %9d%n", productName, quantity);
     }
 
-    private void printReceiptSummary(Receipt receipt, Membership membership) {
+    private void printReceiptSummary(Receipt receipt, Cart cart, Membership membership) {
         System.out.println("====================================");
         System.out.printf("%-10s %8d %13s%n", "총구매액", receipt.getTotalQuantity(),
                 String.format("%,d", receipt.getTotalPrice()));
         System.out.printf("%-10s %22s%n", "행사할인",
-                String.format("-%s", String.format("%,d", receipt.getPromotionDiscount())));
+                String.format("-%s", String.format("%,d", receipt.getPromotionDiscount(cart))));
         System.out.printf("%-10s %30s%n", "멤버십할인",
-                String.format("-%s", String.format("%,d", receipt.getMembershipDiscount(membership))));
-        System.out.printf("%-10s %23s%n", "내실돈", String.format("%,d", receipt.getFinalPrice(membership)));
+                String.format("-%s", String.format("%,d", receipt.getMembershipDiscount(cart, membership))));
+        System.out.printf("%-10s %23s%n", "내실돈", String.format("%,d", receipt.getFinalPrice(cart, membership)));
     }
 
     @Override

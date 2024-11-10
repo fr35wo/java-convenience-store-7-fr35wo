@@ -44,7 +44,7 @@ public class ConvenienceStoreController {
         Membership membership = getValidMembershipResponse();
 
         Receipt receipt = convenienceStoreService.createReceipt(cart, membership);
-        storeOutput.printReceipt(receipt, membership);
+        storeOutput.printReceipt(receipt, cart, membership);
 
         updateInventory(cart);
     }

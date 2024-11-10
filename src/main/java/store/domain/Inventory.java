@@ -10,38 +10,53 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import store.common.ErrorMessages;
 import store.io.output.StoreOutput;
 
 public class Inventory {
+    private static final String PROMOTIONS_FILE_PATH = "src/main/resources/promotions.md";
+    private static final String PRODUCTS_FILE_PATH = "src/main/resources/products.md";
+    public static final String MD_FILE_DELIMITER = ",";
+
+    // Field indices
+    private static final int NAME_INDEX = 0;
+    private static final int BUY_QUANTITY_INDEX = 1;
+    private static final int FREE_QUANTITY_INDEX = 2;
+    private static final int START_DATE_INDEX = 3;
+    private static final int END_DATE_INDEX = 4;
+    private static final int PRICE_INDEX = 1;
+    private static final int STOCK_INDEX = 2;
+    private static final int PROMOTION_NAME_INDEX = 3;
+
     private final List<Product> products = new ArrayList<>();
     private final Map<String, Promotion> promotions = new HashMap<>();
 
     public Inventory() {
-        loadPromotions("src/main/resources/promotions.md");
-        loadProducts("src/main/resources/products.md");
+        loadPromotions();
+        loadProducts();
     }
 
-    private void loadPromotions(String filePath) {
+    private void loadPromotions() {
         LocalDate currentDate = DateTimes.now().toLocalDate();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            reader.readLine();
+        try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PROMOTIONS_FILE_PATH))) {
+            reader.readLine(); // Skip the header line
             String line;
             while ((line = reader.readLine()) != null) {
-                Promotion promotion = parsePromotion(line, currentDate);
+                Promotion promotion = parsePromotion(line);
                 addPromotionToMap(promotion, currentDate);
             }
         } catch (IOException e) {
-            System.out.println("프로모션 파일을 불러오는 중 오류가 발생했습니다.");
+            System.out.println(ErrorMessages.ERROR_LOADING_PROMOTIONS_FILE);
         }
     }
 
-    private Promotion parsePromotion(String line, LocalDate currentDate) {
-        String[] fields = line.split(",");
-        String name = fields[0];
-        int buyQuantity = Integer.parseInt(fields[1]);
-        int freeQuantity = Integer.parseInt(fields[2]);
-        LocalDate startDate = LocalDate.parse(fields[3]);
-        LocalDate endDate = LocalDate.parse(fields[4]);
+    private Promotion parsePromotion(String line) {
+        String[] fields = line.split(MD_FILE_DELIMITER);
+        String name = fields[NAME_INDEX];
+        int buyQuantity = Integer.parseInt(fields[BUY_QUANTITY_INDEX]);
+        int freeQuantity = Integer.parseInt(fields[FREE_QUANTITY_INDEX]);
+        LocalDate startDate = LocalDate.parse(fields[START_DATE_INDEX]);
+        LocalDate endDate = LocalDate.parse(fields[END_DATE_INDEX]);
         return new Promotion(name, buyQuantity, freeQuantity, startDate, endDate);
     }
 
@@ -53,24 +68,30 @@ public class Inventory {
         }
     }
 
-    private void loadProducts(String filePath) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line = reader.readLine();
+    private void loadProducts() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PRODUCTS_FILE_PATH))) {
+            reader.readLine(); // Skip the header line
+            String line;
             while ((line = reader.readLine()) != null) {
                 Product product = parseProduct(line);
                 addProductToInventory(product);
             }
         } catch (IOException e) {
-            System.out.println("상품 파일을 불러오는 중 오류가 발생했습니다.");
+            System.out.println(ErrorMessages.ERROR_LOADING_PRODUCTS_FILE);
         }
     }
 
     private Product parseProduct(String line) {
-        String[] fields = line.split(",");
-        String name = fields[0];
-        int price = Integer.parseInt(fields[1]);
-        int stock = Integer.parseInt(fields[2]);
-        String promotionName = fields.length > 3 ? fields[3] : null;
+        String[] fields = line.split(MD_FILE_DELIMITER);
+        String name = fields[NAME_INDEX];
+        int price = Integer.parseInt(fields[PRICE_INDEX]);
+        int stock = Integer.parseInt(fields[STOCK_INDEX]);
+
+        String promotionName = null;
+        if (fields.length > PROMOTION_NAME_INDEX) {
+            promotionName = fields[PROMOTION_NAME_INDEX];
+        }
+
         Promotion promotion = promotions.get(promotionName);
         return new Product(name, price, stock, promotion);
     }
@@ -132,7 +153,7 @@ public class Inventory {
             int totalAvailableStock = getTotalAvailableStock(product);
 
             if (requiredQuantity > totalAvailableStock) {
-                throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+                throw new IllegalStateException(ErrorMessages.EXCEED_STOCK);
             }
         }
     }

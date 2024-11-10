@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Receipt {
     private final List<CartItem> purchasedItems;
-    private final List<String> freeItems;
+    private final List<CartItem> freeItems;
     private final Money totalPrice;
     private final int promotionDiscount;
     private final int membershipDiscount;
@@ -35,24 +35,23 @@ public class Receipt {
         return total;
     }
 
-    private List<String> calculateFreeItems(Cart cart) {
+    private List<CartItem> calculateFreeItems(Cart cart) {
         List<CartItem> items = getCartItems(cart);
         return getFreeItemsFromCart(items);
     }
 
-    private List<String> getFreeItemsFromCart(List<CartItem> items) {
-        List<String> freeItems = new ArrayList<>();
+    private List<CartItem> getFreeItemsFromCart(List<CartItem> items) {
+        List<CartItem> freeItems = new ArrayList<>();
         for (CartItem item : items) {
             addFreeItems(freeItems, item);
         }
         return freeItems;
     }
 
-    private void addFreeItems(List<String> freeItems, CartItem item) {
+    private void addFreeItems(List<CartItem> freeItems, CartItem item) {
         int freeQuantity = item.getFreeQuantity();
         if (freeQuantity > 0) {
-            String freeItemDescription = item.getProduct().getName() + " " + freeQuantity;
-            freeItems.add(freeItemDescription);
+            freeItems.add(item);
         }
     }
 
@@ -83,18 +82,31 @@ public class Receipt {
     private int getNonPromoTotal(List<CartItem> items) {
         int total = 0;
         for (CartItem item : items) {
-            if (!item.hasPromotion()) {
-                total += item.calculateTotalPrice().getAmount();
-            }
+            total += getItemTotalIfNonPromo(item);
         }
         return total;
+    }
+
+    private int getItemTotalIfNonPromo(CartItem item) {
+        if (!item.hasPromotion()) {
+            return item.calculateTotalPrice().getAmount();
+        }
+        return 0;
+    }
+
+    public int getTotalQuantity() {
+        int totalQuantity = 0;
+        for (CartItem item : purchasedItems) {
+            totalQuantity += item.getQuantity();
+        }
+        return totalQuantity;
     }
 
     public List<CartItem> getPurchasedItems() {
         return purchasedItems;
     }
 
-    public List<String> getFreeItems() {
+    public List<CartItem> getFreeItems() {
         return freeItems;
     }
 

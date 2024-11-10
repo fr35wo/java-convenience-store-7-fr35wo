@@ -1,5 +1,7 @@
 package store.domain;
 
+import store.common.ErrorMessages;
+
 public class Money {
     private final int amount;
 
@@ -10,7 +12,7 @@ public class Money {
 
     private void validateAmount(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("금액은 음수일 수 없습니다.");
+            throw new IllegalArgumentException(ErrorMessages.NEGATIVE_AMOUNT);
         }
     }
 
@@ -21,14 +23,14 @@ public class Money {
     public Money subtract(Money other) {
         int result = this.amount - other.amount;
         if (result < 0) {
-            throw new IllegalArgumentException("금액이 음수가 될 수 없습니다.");
+            throw new IllegalArgumentException(ErrorMessages.NEGATIVE_AMOUNT);
         }
         return new Money(result);
     }
 
     public Money multiply(int multiplier) {
         if (multiplier < 0) {
-            throw new IllegalArgumentException("곱셈의 값은 음수가 될 수 없습니다.");
+            throw new IllegalArgumentException(ErrorMessages.NEGATIVE_MULTIPLICATION);
         }
         return new Money(this.amount * multiplier);
     }

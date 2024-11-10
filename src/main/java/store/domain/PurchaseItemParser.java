@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import store.common.ErrorMessages;
 
 public class PurchaseItemParser {
 
@@ -22,13 +23,13 @@ public class PurchaseItemParser {
 
     private void validateInput(String input) {
         if (input == null || input.trim().isEmpty()) {
-            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
+            throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
         }
 
         String validPattern = OPEN_BRACKET + "[^\\-\\]\\s]+" + DASH + "\\d+" + CLOSE_BRACKET +
                 "(" + COMMA + OPEN_BRACKET + "[^\\-\\]\\s]+" + DASH + "\\d+" + CLOSE_BRACKET + ")*";
         if (!input.matches(validPattern)) {
-            throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
+            throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
         }
     }
 
@@ -39,7 +40,7 @@ public class PurchaseItemParser {
         while (matcher.find()) {
             String productName = matcher.group(1).trim();
             if (productName.isEmpty()) {
-                throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
+                throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
             }
 
             int quantity = parseQuantity(matcher.group(2).trim());
@@ -55,11 +56,11 @@ public class PurchaseItemParser {
         try {
             int quantity = Integer.parseInt(quantityStr);
             if (quantity <= 0) {
-                throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
+                throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
             }
             return quantity;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("올바르지 않은 형식의 수량입니다. 다시 입력해 주세요.");
+            throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
         }
     }
 
@@ -68,7 +69,7 @@ public class PurchaseItemParser {
         Product regularProduct = inventory.getProductByNameAndPromotion(productName, false).orElse(null);
 
         if (promoProduct == null && regularProduct == null) {
-            throw new IllegalArgumentException("존재하지 않는 상품입니다. 다시 입력해 주세요.");
+            throw new IllegalArgumentException(ErrorMessages.PRODUCT_NOT_FOUND);
         }
 
         return promoProduct != null ? promoProduct : regularProduct;

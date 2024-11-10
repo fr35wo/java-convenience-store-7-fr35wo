@@ -3,6 +3,9 @@ package store.domain;
 import java.time.LocalDate;
 
 public class CartItem {
+    private static final int DEFAULT_FREE_QUANTITY = 0;
+    private static final int MINIMUM_VALID_QUANTITY = 0;
+
     private final Product product;
     private int quantity;
 
@@ -52,13 +55,13 @@ public class CartItem {
     private boolean isStockAvailable(Promotion promotion) {
         int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
         int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
-        return (quantity - promoAvailableQuantity) > 0;
+        return (quantity - promoAvailableQuantity) > MINIMUM_VALID_QUANTITY;
     }
 
     public int getFreeQuantity() {
         Promotion promotion = product.getPromotion();
         if (promotion == null) {
-            return 0;
+            return DEFAULT_FREE_QUANTITY;
         }
         return promotion.calculateFreeItems(quantity, product.getStock());
     }
@@ -74,13 +77,13 @@ public class CartItem {
     private int calculateRemainingQuantityForValidPromotion(Promotion promotion) {
         int totalRequired = promotion.getBuyQuantity() + promotion.getFreeQuantity();
         int promoAvailableQuantity = (product.getStock() / totalRequired) * totalRequired;
-        return Math.max(0, quantity - promoAvailableQuantity);
+        return Math.max(MINIMUM_VALID_QUANTITY, quantity - promoAvailableQuantity);
     }
 
     public int calculateAdditionalQuantityNeeded() {
         Promotion promotion = product.getPromotion();
         if (!isPromotionValid(promotion)) {
-            return 0;
+            return DEFAULT_FREE_QUANTITY;
         }
         return calculateAdditionalQuantity(promotion);
     }
@@ -91,7 +94,7 @@ public class CartItem {
         if (remainder == promotion.getBuyQuantity()) {
             return totalRequired - remainder;
         }
-        return 0;
+        return DEFAULT_FREE_QUANTITY;
     }
 
     public void updateQuantityForFullPrice(int promoAvailableQuantity) {

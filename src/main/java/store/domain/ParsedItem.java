@@ -1,6 +1,7 @@
 package store.domain;
 
 import java.util.List;
+import store.common.ErrorMessages;
 
 public class ParsedItem {
     private final Product product;
@@ -42,7 +43,7 @@ public class ParsedItem {
 
     private void validateStockAvailability(int requiredQuantity, int totalAvailableStock) {
         if (requiredQuantity > totalAvailableStock) {
-            throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            throw new IllegalStateException(ErrorMessages.EXCEED_STOCK);
         }
     }
 

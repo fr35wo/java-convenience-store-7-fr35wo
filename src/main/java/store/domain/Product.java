@@ -1,5 +1,7 @@
 package store.domain;
 
+import store.common.ErrorMessages;
+
 public class Product {
     private final String name;
     private final Money price;
@@ -23,14 +25,14 @@ public class Product {
 
     public void reduceRegularStock(int quantity) {
         if (quantity > stock) {
-            throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            throw new IllegalStateException(ErrorMessages.EXCEED_STOCK);
         }
         stock -= quantity;
     }
 
     public void reducePromotionStock(int promoQuantity) {
         if (promoQuantity > stock) {
-            throw new IllegalStateException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            throw new IllegalStateException(ErrorMessages.EXCEED_STOCK);
         }
         stock -= promoQuantity;
     }
@@ -43,10 +45,8 @@ public class Product {
         this.stock += additionalStock;
     }
 
-    public void printProductInfo() {
-        String stockInfo = stock > 0 ? stock + "개" : "재고 없음";
-        String promoInfo = getPromotionDescription();
-        System.out.printf("- %s %d원 %s %s\n", name, price.getAmount(), stockInfo, promoInfo);
+    public Money getPrice() {
+        return price;
     }
 
     public int getStock() {

@@ -11,7 +11,5 @@ public interface StoreOutput {
 
     void printError(String message);
 
-    void printThankYouMessage();
-
     void close();
 }

@@ -1,37 +1,47 @@
 package store.io.input.impl;
 
 import camp.nextstep.edu.missionutils.Console;
+import store.common.ConsoleMessages;
+import store.common.ErrorMessages;
 import store.io.input.StoreInput;
+
 
 public class InputConsole implements StoreInput {
 
     @Override
     public String getPurchaseItemsInput() {
-        System.out.println("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
+        System.out.println(ConsoleMessages.PURCHASE_ITEMS_PROMPT);
         return Console.readLine();
     }
 
     @Override
     public boolean askForAdditionalPromo(String itemName, int additionalCount) {
-        System.out.printf("현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n", itemName, additionalCount);
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
+        System.out.printf(ConsoleMessages.ADDITIONAL_PROMO_PROMPT + ConsoleMessages.LINE_SEPARATOR, itemName,
+                additionalCount);
         return getYesNoResponse();
     }
 
     @Override
     public boolean askForFullPricePurchase(String itemName, int shortageCount) {
-        System.out.printf("현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n", itemName, shortageCount);
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
+        System.out.printf(ConsoleMessages.FULL_PRICE_PURCHASE_PROMPT + ConsoleMessages.LINE_SEPARATOR, itemName,
+                shortageCount);
         return getYesNoResponse();
     }
 
     @Override
     public boolean askForMembershipDiscount() {
-        System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
+        System.out.println(ConsoleMessages.MEMBERSHIP_DISCOUNT_PROMPT);
         return getYesNoResponse();
     }
 
     @Override
     public boolean askForAdditionalPurchase() {
-        System.out.println("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
+        System.out.println(ConsoleMessages.ADDITIONAL_PURCHASE_PROMPT);
         return getYesNoResponse();
     }
 
@@ -45,9 +55,9 @@ public class InputConsole implements StoreInput {
                 if ("N".equals(input)) {
                     return false;
                 }
-                throw new IllegalArgumentException("잘못된 입력입니다. Y 또는 N을 입력해 주세요.");
+                throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_MESSAGE);
             } catch (IllegalArgumentException e) {
-                System.out.println("[ERROR] " + e.getMessage());
+                System.out.println(ErrorMessages.ERROR_MESSAGE + e.getMessage());
             }
         }
     }

@@ -28,8 +28,6 @@ public class ConvenienceStoreController {
                 executeShoppingCycle();
                 continueShopping = getValidAdditionalPurchaseResponse();
             } while (continueShopping);
-
-            storeOutput.printThankYouMessage();
         } finally {
             storeOutput.close();
         }

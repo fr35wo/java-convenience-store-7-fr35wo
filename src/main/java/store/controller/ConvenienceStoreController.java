@@ -59,7 +59,6 @@ public class ConvenienceStoreController {
         }
     }
 
-    //enum생성 컨트롤러가 하는게 맞나 서비스가 낫지않나
     private Membership getValidMembershipResponse() {
         while (true) {
             try {

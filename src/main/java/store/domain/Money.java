@@ -3,6 +3,8 @@ package store.domain;
 import store.common.ErrorMessages;
 
 public class Money {
+    private static final int MINIMUM_AMOUNT = 0;
+
     private final int amount;
 
     public Money(int amount) {
@@ -11,7 +13,7 @@ public class Money {
     }
 
     private void validateAmount(int amount) {
-        if (amount < 0) {
+        if (amount < MINIMUM_AMOUNT) {
             throw new IllegalArgumentException(ErrorMessages.NEGATIVE_AMOUNT);
         }
     }
@@ -22,14 +24,14 @@ public class Money {
 
     public Money subtract(Money other) {
         int result = this.amount - other.amount;
-        if (result < 0) {
+        if (result < MINIMUM_AMOUNT) {
             throw new IllegalArgumentException(ErrorMessages.NEGATIVE_AMOUNT);
         }
         return new Money(result);
     }
 
     public Money multiply(int multiplier) {
-        if (multiplier < 0) {
+        if (multiplier < MINIMUM_AMOUNT) {
             throw new IllegalArgumentException(ErrorMessages.NEGATIVE_MULTIPLICATION);
         }
         return new Money(this.amount * multiplier);

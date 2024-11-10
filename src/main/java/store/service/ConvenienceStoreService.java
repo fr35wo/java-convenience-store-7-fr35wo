@@ -1,6 +1,5 @@
 package store.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import store.domain.Cart;
 import store.domain.CartItem;
@@ -30,11 +29,11 @@ public class ConvenienceStoreService {
     }
 
     public Cart createCart(List<ParsedItem> parsedItems) {
-        List<CartItem> cartItems = new ArrayList<>();
+        Cart cart = new Cart();
         for (ParsedItem parsedItem : parsedItems) {
-            parsedItem.addToCart(cartItems);
+            cart.addItem(parsedItem.toCartItem());
         }
-        return new Cart(cartItems);
+        return cart;
     }
 
     public void applyPromotionToCartItems(Cart cart, StoreInput storeInput) {

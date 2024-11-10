@@ -7,6 +7,10 @@ import java.util.regex.Pattern;
 import store.common.ErrorMessages;
 
 public class PurchaseItemParser {
+    private static final int INITIAL_LIST_SIZE = 0;
+    private static final int INVALID_QUANTITY_VALUE = 0;
+    private static final int PRODUCT_NAME_GROUP_INDEX = 1;
+    private static final int QUANTITY_GROUP_INDEX = 2;
 
     private static final String OPEN_BRACKET = Pattern.quote("[");
     private static final String CLOSE_BRACKET = Pattern.quote("]");
@@ -34,16 +38,16 @@ public class PurchaseItemParser {
     }
 
     private List<ParsedItem> parseItems(String input, Inventory inventory) {
-        List<ParsedItem> items = new ArrayList<>();
+        List<ParsedItem> items = new ArrayList<>(INITIAL_LIST_SIZE);
         Matcher matcher = ITEM_PATTERN.matcher(input);
 
         while (matcher.find()) {
-            String productName = matcher.group(1).trim();
+            String productName = matcher.group(PRODUCT_NAME_GROUP_INDEX).trim();
             if (productName.isEmpty()) {
                 throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
             }
 
-            int quantity = parseQuantity(matcher.group(2).trim());
+            int quantity = parseQuantity(matcher.group(QUANTITY_GROUP_INDEX).trim());
 
             Product product = findProduct(productName, inventory);
             items.add(new ParsedItem(product, quantity, inventory));
@@ -55,7 +59,7 @@ public class PurchaseItemParser {
     private int parseQuantity(String quantityStr) {
         try {
             int quantity = Integer.parseInt(quantityStr);
-            if (quantity <= 0) {
+            if (quantity <= INVALID_QUANTITY_VALUE) {
                 throw new IllegalArgumentException(ErrorMessages.INVALID_INPUT_FORMAT);
             }
             return quantity;

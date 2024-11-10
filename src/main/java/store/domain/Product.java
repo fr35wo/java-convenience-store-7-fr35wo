@@ -3,24 +3,18 @@ package store.domain;
 import store.common.ErrorMessages;
 
 public class Product {
+    private static final String NO_PROMOTION_DESCRIPTION = "";
+
     private final String name;
     private final Money price;
     private int stock;
-    private Promotion promotion;
+    private final Promotion promotion;
 
     public Product(String name, int price, int stock, Promotion promotion) {
         this.name = name;
         this.price = new Money(price);
         this.stock = stock;
         this.promotion = promotion;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Promotion getPromotion() {
-        return promotion;
     }
 
     public void reduceRegularStock(int quantity) {
@@ -38,11 +32,18 @@ public class Product {
     }
 
     public String getPromotionDescription() {
-        return promotion != null ? promotion.getName() : "";
+        if (promotion != null) {
+            return promotion.getName();
+        }
+        return NO_PROMOTION_DESCRIPTION;
     }
 
     public void addStock(int additionalStock) {
         this.stock += additionalStock;
+    }
+
+    public Money calculatePrice(int quantity) {
+        return price.multiply(quantity);
     }
 
     public Money getPrice() {
@@ -53,7 +54,11 @@ public class Product {
         return stock;
     }
 
-    public Money calculatePrice(int quantity) {
-        return price.multiply(quantity);
+    public String getName() {
+        return name;
+    }
+
+    public Promotion getPromotion() {
+        return promotion;
     }
 }

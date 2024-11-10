@@ -3,6 +3,8 @@ package store.domain;
 import java.time.LocalDate;
 
 public class Promotion {
+    private static final int DEFAULT_FREE_QUANTITY = 0;
+
     private final String name;
     private final int buyQuantity;
     private final int freeQuantity;
@@ -16,13 +18,14 @@ public class Promotion {
         this.startDate = startDate;
         this.endDate = endDate;
     }
-
-    public int getBuyQuantity() {
-        return buyQuantity;
-    }
-
-    public int getFreeQuantity() {
-        return freeQuantity;
+    
+    public int calculateFreeItems(int purchasedQuantity, int stock) {
+        if (isValid(LocalDate.now())) {
+            int totalRequired = buyQuantity + freeQuantity;
+            int promoSets = Math.min(purchasedQuantity / totalRequired, stock / totalRequired);
+            return promoSets * freeQuantity;
+        }
+        return DEFAULT_FREE_QUANTITY;
     }
 
     public boolean isValid(LocalDate date) {
@@ -33,12 +36,11 @@ public class Promotion {
         return name;
     }
 
-    public int calculateFreeItems(int purchasedQuantity, int stock) {
-        if (isValid(LocalDate.now())) {
-            int totalRequired = buyQuantity + freeQuantity;
-            int promoSets = Math.min(purchasedQuantity / totalRequired, stock / totalRequired);
-            return promoSets * freeQuantity;
-        }
-        return 0;
+    public int getBuyQuantity() {
+        return buyQuantity;
+    }
+
+    public int getFreeQuantity() {
+        return freeQuantity;
     }
 }

@@ -17,8 +17,7 @@ public class Inventory {
     private static final String PROMOTIONS_FILE_PATH = "src/main/resources/promotions.md";
     private static final String PRODUCTS_FILE_PATH = "src/main/resources/products.md";
     public static final String MD_FILE_DELIMITER = ",";
-
-    // Field indices
+    
     private static final int NAME_INDEX = 0;
     private static final int BUY_QUANTITY_INDEX = 1;
     private static final int FREE_QUANTITY_INDEX = 2;
@@ -27,6 +26,9 @@ public class Inventory {
     private static final int PRICE_INDEX = 1;
     private static final int STOCK_INDEX = 2;
     private static final int PROMOTION_NAME_INDEX = 3;
+
+    private static final int DEFAULT_STOCK = 0;
+    private static final int EMPTY_PROMOTION = 0;
 
     private final List<Product> products = new ArrayList<>();
     private final Map<String, Promotion> promotions = new HashMap<>();
@@ -39,7 +41,7 @@ public class Inventory {
     private void loadPromotions() {
         LocalDate currentDate = DateTimes.now().toLocalDate();
         try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PROMOTIONS_FILE_PATH))) {
-            reader.readLine(); // Skip the header line
+            reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
                 Promotion promotion = parsePromotion(line);
@@ -70,7 +72,7 @@ public class Inventory {
 
     private void loadProducts() {
         try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PRODUCTS_FILE_PATH))) {
-            reader.readLine(); // Skip the header line
+            reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
                 Product product = parseProduct(line);
@@ -167,13 +169,13 @@ public class Inventory {
     private int getAvailablePromoStock(Product product) {
         return getProductByNameAndPromotion(product.getName(), true)
                 .map(Product::getStock)
-                .orElse(0);
+                .orElse(DEFAULT_STOCK);
     }
 
     private int getAvailableRegularStock(Product product) {
         return getProductByNameAndPromotion(product.getName(), false)
                 .map(Product::getStock)
-                .orElse(0);
+                .orElse(DEFAULT_STOCK);
     }
 
     private void reduceStock(Cart cart) {
@@ -190,10 +192,10 @@ public class Inventory {
 
     private int calculatePromoQuantity(Product product, int requiredQuantity) {
         if (product.getPromotion() == null) {
-            return 0;
+            return EMPTY_PROMOTION;
         }
         if (!product.getPromotion().isValid(LocalDate.now())) {
-            return 0;
+            return EMPTY_PROMOTION;
         }
         return Math.min(requiredQuantity, product.getStock());
     }
@@ -204,7 +206,7 @@ public class Inventory {
     }
 
     private void reducePromotionStock(String productName, int promoQuantity) {
-        if (promoQuantity <= 0) {
+        if (promoQuantity <= DEFAULT_STOCK) {
             return;
         }
         getProductByNameAndPromotion(productName, true)
@@ -212,7 +214,7 @@ public class Inventory {
     }
 
     private void reduceRegularStock(String productName, int regularQuantity) {
-        if (regularQuantity <= 0) {
+        if (regularQuantity <= DEFAULT_STOCK) {
             return;
         }
         getProductByNameAndPromotion(productName, false)

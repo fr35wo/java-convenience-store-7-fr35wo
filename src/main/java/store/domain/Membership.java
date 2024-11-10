@@ -4,6 +4,8 @@ public enum Membership {
     Y(30, 8000),
     N(0, 0);
 
+    private static final int PERCENTAGE_DIVISOR = 100;
+
     private final int discountRate;
     private final int maxDiscountAmount;
 
@@ -13,7 +15,7 @@ public enum Membership {
     }
 
     public int calculateDiscount(int nonPromoTotal) {
-        int discountAmount = (nonPromoTotal * discountRate) / 100;
+        int discountAmount = (nonPromoTotal * discountRate) / PERCENTAGE_DIVISOR;
         return Math.min(discountAmount, maxDiscountAmount);
     }
 }

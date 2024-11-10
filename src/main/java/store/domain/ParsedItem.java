@@ -1,9 +1,10 @@
 package store.domain;
 
-import java.util.List;
 import store.common.ErrorMessages;
 
 public class ParsedItem {
+    private static final int DEFAULT_STOCK = 0;
+
     private final Product product;
     private final int quantity;
 
@@ -28,12 +29,12 @@ public class ParsedItem {
     }
 
     private int calculateTotalAvailableStock(Product promoProduct, Product regularProduct) {
-        int promoStock = 0;
+        int promoStock = DEFAULT_STOCK;
         if (promoProduct != null) {
             promoStock = promoProduct.getStock();
         }
 
-        int regularStock = 0;
+        int regularStock = DEFAULT_STOCK;
         if (regularProduct != null) {
             regularStock = regularProduct.getStock();
         }
@@ -47,7 +48,7 @@ public class ParsedItem {
         }
     }
 
-    public void addToCart(List<CartItem> cartItems) {
-        cartItems.add(new CartItem(product, quantity));
+    public CartItem toCartItem() {
+        return new CartItem(product, quantity);
     }
 }

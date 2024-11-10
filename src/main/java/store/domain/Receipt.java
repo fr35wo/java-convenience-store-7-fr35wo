@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Receipt {
+    private static final int MINIMUM_AMOUNT = 0;
+    private static final int NO_PROMOTION_DISCOUNT = 0;
+    private static final int NO_QUANTITY = 0;
+
     private final List<CartItem> purchasedItems;
     private final List<CartItem> freeItems;
     private final Money totalPrice;
@@ -28,7 +32,7 @@ public class Receipt {
     }
 
     private Money calculateItemsTotalPrice(List<CartItem> items) {
-        Money total = new Money(0);
+        Money total = new Money(MINIMUM_AMOUNT);
         for (CartItem item : items) {
             total = total.add(item.calculateTotalPrice());
         }
@@ -50,7 +54,7 @@ public class Receipt {
 
     private void addFreeItems(List<CartItem> freeItems, CartItem item) {
         int freeQuantity = item.getFreeQuantity();
-        if (freeQuantity > 0) {
+        if (freeQuantity > NO_QUANTITY) {
             freeItems.add(item);
         }
     }
@@ -61,7 +65,7 @@ public class Receipt {
     }
 
     private int getPromotionDiscountFromItems(List<CartItem> items) {
-        int discount = 0;
+        int discount = NO_PROMOTION_DISCOUNT;
         for (CartItem item : items) {
             discount += calculateItemPromotionDiscount(item);
         }
@@ -80,7 +84,7 @@ public class Receipt {
     }
 
     private int getNonPromoTotal(List<CartItem> items) {
-        int total = 0;
+        int total = MINIMUM_AMOUNT;
         for (CartItem item : items) {
             total += getItemTotalIfNonPromo(item);
         }
@@ -91,11 +95,11 @@ public class Receipt {
         if (!item.hasPromotion()) {
             return item.calculateTotalPrice().getAmount();
         }
-        return 0;
+        return NO_PROMOTION_DISCOUNT;
     }
 
     public int getTotalQuantity() {
-        int totalQuantity = 0;
+        int totalQuantity = NO_QUANTITY;
         for (CartItem item : purchasedItems) {
             totalQuantity += item.getQuantity();
         }

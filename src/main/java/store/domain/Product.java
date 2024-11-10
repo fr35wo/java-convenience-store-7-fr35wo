@@ -42,7 +42,7 @@ public class Product {
         this.stock += additionalStock;
     }
 
-    public Money calculatePrice(int quantity) {
+    public Money calculateTotalPrice(int quantity) {
         return price.multiply(quantity);
     }
 

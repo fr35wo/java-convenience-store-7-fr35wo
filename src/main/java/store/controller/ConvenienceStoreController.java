@@ -42,8 +42,9 @@ public class ConvenienceStoreController {
         convenienceStoreService.applyPromotionToCartItems(cart, storeInput);
 
         Membership membership = getValidMembershipResponse();
+
         Receipt receipt = convenienceStoreService.createReceipt(cart, membership);
-        storeOutput.printReceipt(receipt);
+        storeOutput.printReceipt(receipt, membership);
 
         updateInventory(cart);
     }
@@ -62,11 +63,7 @@ public class ConvenienceStoreController {
     private Membership getValidMembershipResponse() {
         while (true) {
             try {
-                boolean isMembership = storeInput.askForMembershipDiscount();
-                if (isMembership) {
-                    return Membership.Y;
-                }
-                return Membership.N;
+                return convenienceStoreService.determineMembership(storeInput);
             } catch (IllegalArgumentException e) {
                 storeOutput.printError(e.getMessage());
             }

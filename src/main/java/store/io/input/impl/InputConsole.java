@@ -48,7 +48,7 @@ public class InputConsole implements StoreInput {
     private boolean getYesNoResponse() {
         while (true) {
             try {
-                String input = Console.readLine().trim().toUpperCase();
+                String input = Console.readLine();
                 if ("Y".equals(input)) {
                     return true;
                 }

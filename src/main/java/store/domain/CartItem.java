@@ -7,7 +7,7 @@ public class CartItem {
     private static final int MINIMUM_VALID_QUANTITY = 0;
 
     private final Product product;
-    private int quantity;
+    private final int quantity;
 
     public CartItem(Product product, int quantity) {
         this.product = product;
@@ -15,11 +15,11 @@ public class CartItem {
     }
 
     public Money calculateTotalPrice() {
-        return product.calculatePrice(quantity);
+        return product.calculateTotalPrice(quantity);
     }
 
     public Money getTotalAmountWithoutPromotion() {
-        return product.calculatePrice(getEffectivePaidQuantity());
+        return product.calculateTotalPrice(getEffectivePaidQuantity());
     }
 
     public int getEffectivePaidQuantity() {
@@ -97,12 +97,12 @@ public class CartItem {
         return DEFAULT_FREE_QUANTITY;
     }
 
-    public void updateQuantityForFullPrice(int promoAvailableQuantity) {
-        this.quantity = promoAvailableQuantity;
+    public CartItem withUpdatedQuantityForFullPrice(int newQuantity) {
+        return new CartItem(this.product, newQuantity);
     }
 
-    public void updateQuantityForPromotion(int additionalQuantityNeeded) {
-        this.quantity += additionalQuantityNeeded;
+    public CartItem withAdditionalQuantity(int additionalQuantity) {
+        return new CartItem(this.product, this.quantity + additionalQuantity);
     }
 
     public boolean hasPromotion() {

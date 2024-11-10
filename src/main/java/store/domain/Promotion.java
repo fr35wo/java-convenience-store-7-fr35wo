@@ -1,5 +1,6 @@
 package store.domain;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
 
 public class Promotion {
@@ -18,9 +19,9 @@ public class Promotion {
         this.startDate = startDate;
         this.endDate = endDate;
     }
-    
+
     public int calculateFreeItems(int purchasedQuantity, int stock) {
-        if (isValid(LocalDate.now())) {
+        if (isValid(DateTimes.now().toLocalDate())) {
             int totalRequired = buyQuantity + freeQuantity;
             int promoSets = Math.min(purchasedQuantity / totalRequired, stock / totalRequired);
             return promoSets * freeQuantity;

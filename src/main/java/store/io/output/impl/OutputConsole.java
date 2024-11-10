@@ -6,6 +6,7 @@ import java.util.Optional;
 import store.common.ConsoleMessages;
 import store.common.ErrorMessages;
 import store.domain.CartItem;
+import store.domain.Membership;
 import store.domain.Product;
 import store.domain.Receipt;
 import store.io.output.StoreOutput;
@@ -64,11 +65,11 @@ public class OutputConsole implements StoreOutput {
     }
 
     @Override
-    public void printReceipt(Receipt receipt) {
+    public void printReceipt(Receipt receipt, Membership membership) {
         printReceiptHeader();
         printPurchasedItems(receipt);
         printFreeItems(receipt);
-        printReceiptSummary(receipt);
+        printReceiptSummary(receipt, membership);
     }
 
     private void printReceiptHeader() {
@@ -109,15 +110,15 @@ public class OutputConsole implements StoreOutput {
         System.out.printf("%-10s %9d%n", productName, quantity);
     }
 
-    private void printReceiptSummary(Receipt receipt) {
+    private void printReceiptSummary(Receipt receipt, Membership membership) {
         System.out.println("====================================");
         System.out.printf("%-10s %8d %13s%n", "총구매액", receipt.getTotalQuantity(),
                 String.format("%,d", receipt.getTotalPrice()));
         System.out.printf("%-10s %22s%n", "행사할인",
                 String.format("-%s", String.format("%,d", receipt.getPromotionDiscount())));
         System.out.printf("%-10s %30s%n", "멤버십할인",
-                String.format("-%s", String.format("%,d", receipt.getMembershipDiscount())));
-        System.out.printf("%-10s %23s%n", "내실돈", String.format("%,d", receipt.getFinalPrice()));
+                String.format("-%s", String.format("%,d", receipt.getMembershipDiscount(membership))));
+        System.out.printf("%-10s %23s%n", "내실돈", String.format("%,d", receipt.getFinalPrice(membership)));
     }
 
     @Override

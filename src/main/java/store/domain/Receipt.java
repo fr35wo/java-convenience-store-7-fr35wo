@@ -5,21 +5,16 @@ import java.util.List;
 
 public class Receipt {
     private static final int MINIMUM_AMOUNT = 0;
-    private static final int NO_PROMOTION_DISCOUNT = 0;
     private static final int NO_QUANTITY = 0;
 
     private final List<CartItem> purchasedItems;
     private final List<CartItem> freeItems;
     private final Money totalPrice;
-    private final int promotionDiscount;
-    private final int membershipDiscount;
 
     public Receipt(Cart cart, Membership membership) {
         this.purchasedItems = getCartItems(cart);
         this.freeItems = calculateFreeItems(cart);
         this.totalPrice = calculateTotalPrice(cart);
-        this.promotionDiscount = calculatePromotionDiscount(cart);
-        this.membershipDiscount = membership.calculateDiscount(calculateNonPromoTotal(cart));
     }
 
     private List<CartItem> getCartItems(Cart cart) {
@@ -59,14 +54,9 @@ public class Receipt {
         }
     }
 
-    private int calculatePromotionDiscount(Cart cart) {
-        List<CartItem> items = getCartItems(cart);
-        return getPromotionDiscountFromItems(items);
-    }
-
-    private int getPromotionDiscountFromItems(List<CartItem> items) {
-        int discount = NO_PROMOTION_DISCOUNT;
-        for (CartItem item : items) {
+    private int calculatePromotionDiscount() {
+        int discount = 0;
+        for (CartItem item : purchasedItems) {
             discount += calculateItemPromotionDiscount(item);
         }
         return discount;
@@ -78,14 +68,13 @@ public class Receipt {
         return totalAmount.subtract(amountWithoutPromotion).getAmount();
     }
 
-    private int calculateNonPromoTotal(Cart cart) {
-        List<CartItem> items = getCartItems(cart);
-        return getNonPromoTotal(items);
+    private int calculateMembershipDiscount(Membership membership) {
+        return membership.calculateDiscount(calculateNonPromoTotal());
     }
 
-    private int getNonPromoTotal(List<CartItem> items) {
+    private int calculateNonPromoTotal() {
         int total = MINIMUM_AMOUNT;
-        for (CartItem item : items) {
+        for (CartItem item : purchasedItems) {
             total += getItemTotalIfNonPromo(item);
         }
         return total;
@@ -95,7 +84,7 @@ public class Receipt {
         if (!item.hasPromotion()) {
             return item.calculateTotalPrice().getAmount();
         }
-        return NO_PROMOTION_DISCOUNT;
+        return 0;
     }
 
     public int getTotalQuantity() {
@@ -119,14 +108,14 @@ public class Receipt {
     }
 
     public int getPromotionDiscount() {
-        return promotionDiscount;
+        return calculatePromotionDiscount();
     }
 
-    public int getMembershipDiscount() {
-        return membershipDiscount;
+    public int getMembershipDiscount(Membership membership) {
+        return calculateMembershipDiscount(membership);
     }
 
-    public int getFinalPrice() {
-        return totalPrice.getAmount() - promotionDiscount - membershipDiscount;
+    public int getFinalPrice(Membership membership) {
+        return totalPrice.getAmount() - getPromotionDiscount() - getMembershipDiscount(membership);
     }
 }

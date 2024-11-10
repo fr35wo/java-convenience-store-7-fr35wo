@@ -1,5 +1,6 @@
 package store.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import store.domain.Cart;
 import store.domain.CartItem;
@@ -37,35 +38,47 @@ public class ConvenienceStoreService {
     }
 
     public void applyPromotionToCartItems(Cart cart, StoreInput storeInput) {
-        List<CartItem> items = cart.getItems();
-        for (CartItem item : items) {
+        List<CartItem> items = new ArrayList<>(cart.getItems());
+        for (int i = 0; i < items.size(); i++) {
+            CartItem item = items.get(i);
             if (item.isPromotionValid() && !item.checkPromotionStock()) {
-                handleAdditionalPromo(item, storeInput);
+                handleAdditionalPromo(item, storeInput, cart, i);
             }
 
             if (item.isPromotionValid() && item.calculateRemainingQuantity() > 0) {
-                handleFullPricePurchase(item, storeInput);
+                handleFullPricePurchase(item, storeInput, cart, i);
             }
         }
     }
 
-    private void handleAdditionalPromo(CartItem item, StoreInput storeInput) {
+    private void handleAdditionalPromo(CartItem item, StoreInput storeInput, Cart cart, int index) {
         int additionalQuantityNeeded = item.calculateAdditionalQuantityNeeded();
         if (additionalQuantityNeeded > 0) {
             boolean addMore = storeInput.askForAdditionalPromo(item.getProductName(), additionalQuantityNeeded);
             if (addMore) {
-                item.updateQuantityForPromotion(additionalQuantityNeeded);
+                CartItem updatedItem = item.withAdditionalQuantity(additionalQuantityNeeded);
+                cart.replaceItem(index, updatedItem);
             }
         }
     }
 
-    private void handleFullPricePurchase(CartItem item, StoreInput storeInput) {
+    private void handleFullPricePurchase(CartItem item, StoreInput storeInput, Cart cart, int index) {
         int remainingQuantity = item.calculateRemainingQuantity();
         boolean continueFullPricePurchase = storeInput.askForFullPricePurchase(item.getProductName(),
                 remainingQuantity);
         if (!continueFullPricePurchase) {
-            item.updateQuantityForFullPrice(item.getQuantity() - remainingQuantity);
+            CartItem updatedItem = item.withUpdatedQuantityForFullPrice(item.getQuantity() - remainingQuantity);
+            cart.replaceItem(index, updatedItem);
         }
+    }
+
+
+    public Membership determineMembership(StoreInput storeInput) {
+        boolean isMembership = storeInput.askForMembershipDiscount();
+        if (isMembership) {
+            return Membership.Y;
+        }
+        return Membership.N;
     }
 
     public void updateInventory(Cart cart) {

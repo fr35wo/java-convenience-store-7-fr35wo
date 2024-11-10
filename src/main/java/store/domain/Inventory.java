@@ -17,7 +17,7 @@ public class Inventory {
     private static final String PROMOTIONS_FILE_PATH = "src/main/resources/promotions.md";
     private static final String PRODUCTS_FILE_PATH = "src/main/resources/products.md";
     public static final String MD_FILE_DELIMITER = ",";
-    
+
     private static final int NAME_INDEX = 0;
     private static final int BUY_QUANTITY_INDEX = 1;
     private static final int FREE_QUANTITY_INDEX = 2;

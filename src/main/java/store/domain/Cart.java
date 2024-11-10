@@ -14,6 +14,10 @@ public class Cart {
         this.items.add(item);
     }
 
+    public void replaceItem(int index, CartItem newItem) {
+        this.items.set(index, newItem);
+    }
+
     public List<CartItem> getItems() {
         return List.copyOf(items);
     }

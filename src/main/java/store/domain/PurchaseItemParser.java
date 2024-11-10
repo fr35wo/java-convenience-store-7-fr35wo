@@ -7,7 +7,13 @@ import java.util.regex.Pattern;
 
 public class PurchaseItemParser {
 
-    private static final Pattern ITEM_PATTERN = Pattern.compile("\\[(.+?)-(\\d+)]");
+    private static final String OPEN_BRACKET = Pattern.quote("[");
+    private static final String CLOSE_BRACKET = Pattern.quote("]");
+    private static final String DASH = Pattern.quote("-");
+    private static final String COMMA = Pattern.quote(",");
+
+    private static final Pattern ITEM_PATTERN = Pattern.compile(
+            OPEN_BRACKET + "([^\\-\\]\\s]+)" + DASH + "(\\d+)" + CLOSE_BRACKET);
 
     public List<ParsedItem> parse(String input, Inventory inventory) {
         validateInput(input);
@@ -19,7 +25,8 @@ public class PurchaseItemParser {
             throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
 
-        String validPattern = "(\\[(.+?)-(\\d+)\\])(,\\[(.+?)-(\\d+)\\])*";
+        String validPattern = OPEN_BRACKET + "[^\\-\\]\\s]+" + DASH + "\\d+" + CLOSE_BRACKET +
+                "(" + COMMA + OPEN_BRACKET + "[^\\-\\]\\s]+" + DASH + "\\d+" + CLOSE_BRACKET + ")*";
         if (!input.matches(validPattern)) {
             throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
@@ -31,6 +38,10 @@ public class PurchaseItemParser {
 
         while (matcher.find()) {
             String productName = matcher.group(1).trim();
+            if (productName.isEmpty()) {
+                throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
+            }
+
             int quantity = parseQuantity(matcher.group(2).trim());
 
             Product product = findProduct(productName, inventory);
@@ -44,7 +55,7 @@ public class PurchaseItemParser {
         try {
             int quantity = Integer.parseInt(quantityStr);
             if (quantity <= 0) {
-                throw new IllegalArgumentException("수량은 0보다 커야 합니다. 다시 입력해 주세요.");
+                throw new IllegalArgumentException("올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
             }
             return quantity;
         } catch (NumberFormatException e) {

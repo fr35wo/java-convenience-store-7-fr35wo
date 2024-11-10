@@ -1,6 +1,6 @@
 package store.domain;
 
-import java.time.LocalDate;
+import camp.nextstep.edu.missionutils.DateTimes;
 
 public class CartItem {
     private static final int DEFAULT_FREE_QUANTITY = 0;
@@ -18,8 +18,24 @@ public class CartItem {
         return product.calculateTotalPrice(quantity);
     }
 
+    public int calculatePromotionDiscount() {
+        if (!product.isPromotionValid()) {
+            return 0;
+        }
+        Money totalAmount = calculateTotalPrice();
+        Money amountWithoutPromotion = getTotalAmountWithoutPromotion();
+        return totalAmount.subtract(amountWithoutPromotion).getAmount();
+    }
+
+    public int calculateTotalIfNoPromotion() {
+        if (!product.isPromotionValid()) {
+            return calculateTotalPrice().getAmount();
+        }
+        return 0;
+    }
+
     public Money getTotalAmountWithoutPromotion() {
-        return product.calculateTotalPrice(getEffectivePaidQuantity());
+        return product.calculatePrice(getEffectivePaidQuantity());
     }
 
     public int getEffectivePaidQuantity() {
@@ -41,7 +57,7 @@ public class CartItem {
     }
 
     private boolean isPromotionValid(Promotion promotion) {
-        return promotion != null && promotion.isValid(LocalDate.now());
+        return promotion != null && promotion.isValid(DateTimes.now().toLocalDate());
     }
 
     public boolean checkPromotionStock() {
@@ -103,11 +119,6 @@ public class CartItem {
 
     public CartItem withAdditionalQuantity(int additionalQuantity) {
         return new CartItem(this.product, this.quantity + additionalQuantity);
-    }
-
-    public boolean hasPromotion() {
-        Promotion promotion = product.getPromotion();
-        return isPromotionValid(promotion);
     }
 
     public String getProductName() {

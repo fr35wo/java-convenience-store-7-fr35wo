@@ -57,34 +57,21 @@ public class Receipt {
     private int calculatePromotionDiscount() {
         int discount = 0;
         for (CartItem item : purchasedItems) {
-            discount += calculateItemPromotionDiscount(item);
+            discount += item.calculatePromotionDiscount();
         }
         return discount;
-    }
-
-    private int calculateItemPromotionDiscount(CartItem item) {
-        Money totalAmount = item.calculateTotalPrice();
-        Money amountWithoutPromotion = item.getTotalAmountWithoutPromotion();
-        return totalAmount.subtract(amountWithoutPromotion).getAmount();
-    }
-
-    private int calculateMembershipDiscount(Membership membership) {
-        return membership.calculateDiscount(calculateNonPromoTotal());
     }
 
     private int calculateNonPromoTotal() {
         int total = MINIMUM_AMOUNT;
         for (CartItem item : purchasedItems) {
-            total += getItemTotalIfNonPromo(item);
+            total += item.calculateTotalIfNoPromotion();
         }
         return total;
     }
 
-    private int getItemTotalIfNonPromo(CartItem item) {
-        if (!item.hasPromotion()) {
-            return item.calculateTotalPrice().getAmount();
-        }
-        return 0;
+    private int calculateMembershipDiscount(Membership membership) {
+        return membership.calculateDiscount(calculateNonPromoTotal());
     }
 
     public int getTotalQuantity() {

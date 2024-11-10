@@ -39,7 +39,7 @@ public class Inventory {
     }
 
     private void loadPromotions() {
-        LocalDate currentDate = DateTimes.now().toLocalDate();
+        LocalDate currentDate = LocalDate.of(2024, 12, 10);//DateTimes.now().toLocalDate();
         try (BufferedReader reader = new BufferedReader(new FileReader(Inventory.PROMOTIONS_FILE_PATH))) {
             reader.readLine();
             String line;
@@ -194,7 +194,7 @@ public class Inventory {
         if (product.getPromotion() == null) {
             return EMPTY_PROMOTION;
         }
-        if (!product.getPromotion().isValid(LocalDate.now())) {
+        if (!product.getPromotion().isValid(DateTimes.now().toLocalDate())) {
             return EMPTY_PROMOTION;
         }
         return Math.min(requiredQuantity, product.getStock());

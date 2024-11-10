@@ -1,5 +1,6 @@
 package store.domain;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import store.common.ErrorMessages;
 
 public class Product {
@@ -15,6 +16,14 @@ public class Product {
         this.price = new Money(price);
         this.stock = stock;
         this.promotion = promotion;
+    }
+
+    public Money calculatePrice(int quantity) {
+        return price.multiply(quantity);
+    }
+
+    public boolean isPromotionValid() {
+        return promotion != null && promotion.isValid(DateTimes.now().toLocalDate());
     }
 
     public void reduceRegularStock(int quantity) {

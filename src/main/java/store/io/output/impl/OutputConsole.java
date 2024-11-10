@@ -20,6 +20,7 @@ public class OutputConsole implements StoreOutput {
     }
 
     private void printHeader() {
+        System.out.print(ConsoleMessages.LINE_SEPARATOR);
         System.out.println(ConsoleMessages.WELCOME_MESSAGE);
         System.out.println(ConsoleMessages.PRODUCT_LIST_HEADER);
         System.out.print(ConsoleMessages.LINE_SEPARATOR);

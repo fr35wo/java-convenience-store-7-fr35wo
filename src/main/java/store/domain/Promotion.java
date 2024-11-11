@@ -13,11 +13,22 @@ public class Promotion {
     private final LocalDate endDate;
 
     public Promotion(String name, int buyQuantity, int freeQuantity, LocalDate startDate, LocalDate endDate) {
+        validatePromotionParameters(buyQuantity, freeQuantity, startDate, endDate);
         this.name = name;
         this.buyQuantity = buyQuantity;
         this.freeQuantity = freeQuantity;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    private void validatePromotionParameters(int buyQuantity, int freeQuantity, LocalDate startDate,
+                                             LocalDate endDate) {
+        if (buyQuantity <= 0 || freeQuantity <= 0) {
+            throw new IllegalArgumentException("buyQuantity, freeQuantity는 0보다 커야 합니다.");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("프로모션 날짜가 유효하지 않습니다.");
+        }
     }
 
     public int calculateFreeItems(int purchasedQuantity, int stock) {

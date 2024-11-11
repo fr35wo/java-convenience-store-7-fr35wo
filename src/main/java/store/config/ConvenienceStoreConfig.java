@@ -24,4 +24,3 @@ public class ConvenienceStoreConfig {
         return new ConvenienceStoreController(storeInput(), storeOutput(), convenienceStoreService());
     }
 }
-

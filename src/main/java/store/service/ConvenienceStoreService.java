@@ -71,8 +71,7 @@ public class ConvenienceStoreService {
             cart.replaceItem(index, updatedItem);
         }
     }
-
-
+    
     public Membership determineMembership(StoreInput storeInput) {
         boolean isMembership = storeInput.askForMembershipDiscount();
         if (isMembership) {

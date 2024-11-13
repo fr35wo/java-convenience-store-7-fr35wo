@@ -71,7 +71,7 @@ public class ConvenienceStoreService {
             cart.replaceItem(index, updatedItem);
         }
     }
-    
+
     public Membership determineMembership(StoreInput storeInput) {
         boolean isMembership = storeInput.askForMembershipDiscount();
         if (isMembership) {
@@ -84,7 +84,7 @@ public class ConvenienceStoreService {
         inventory.updateInventory(cart);
     }
 
-    public Receipt createReceipt(Cart cart, Membership membership) {
-        return new Receipt(cart, membership);
+    public Receipt createReceipt(Cart cart) {
+        return new Receipt(cart);
     }
 }

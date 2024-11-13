@@ -10,7 +10,7 @@ public class Receipt {
     private final List<CartItem> freeItems;
     private final Money totalPrice;
 
-    public Receipt(Cart cart, Membership membership) {
+    public Receipt(Cart cart) {
         this.purchasedItems = cart.getItems();
         this.freeItems = calculateFreeItems(cart);
         this.totalPrice = cart.getTotalPrice();

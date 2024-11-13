@@ -2,6 +2,7 @@ package store.domain;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
+import store.common.ErrorMessages;
 
 public class Promotion {
     private static final int DEFAULT_FREE_QUANTITY = 0;
@@ -24,10 +25,10 @@ public class Promotion {
     private void validatePromotionParameters(int buyQuantity, int freeQuantity, LocalDate startDate,
                                              LocalDate endDate) {
         if (buyQuantity <= 0 || freeQuantity <= 0) {
-            throw new IllegalArgumentException("buyQuantity, freeQuantity는 0보다 커야 합니다.");
+            throw new IllegalArgumentException(ErrorMessages.BUY_QUANTITY_FREE_QUANTITY_INVALID);
         }
         if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("프로모션 날짜가 유효하지 않습니다.");
+            throw new IllegalArgumentException(ErrorMessages.PROMOTION_DATE_INVALID);
         }
     }
 

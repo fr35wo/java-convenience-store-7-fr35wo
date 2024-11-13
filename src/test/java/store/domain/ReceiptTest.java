@@ -36,7 +36,7 @@ public class ReceiptTest {
         cart.addItem(item1);
         cart.addItem(item2);
 
-        Receipt receipt = new Receipt(cart, membership);
+        Receipt receipt = new Receipt(cart);
 
         assertThat(receipt.getPurchasedItems()).containsExactly(item1, item2);
         assertThat(receipt.getTotalPrice()).isEqualTo(cart.getTotalPrice().getAmount());
@@ -45,7 +45,7 @@ public class ReceiptTest {
 
     @Test
     void 카트가_비어있을_때_총가격은_0원() {
-        Receipt receipt = new Receipt(cart, membership);
+        Receipt receipt = new Receipt(cart);
 
         assertThat(receipt.getTotalPrice()).isEqualTo(0);
     }
@@ -61,7 +61,7 @@ public class ReceiptTest {
         CartItem item = new CartItem(product, quantity);
         cart.addItem(item);
 
-        Receipt receipt = new Receipt(cart, membership);
+        Receipt receipt = new Receipt(cart);
 
         assertThat(receipt.getFinalPrice(cart, membership)).isEqualTo(expectedTotalPrice);
     }
@@ -74,7 +74,7 @@ public class ReceiptTest {
         CartItem item = new CartItem(productWithPromotion, 2);
         cart.addItem(item);
 
-        Receipt receipt = new Receipt(cart, Membership.N);
+        Receipt receipt = new Receipt(cart);
 
         assertThat(receipt.getFinalPrice(cart, membership)).isEqualTo(1000);
     }
